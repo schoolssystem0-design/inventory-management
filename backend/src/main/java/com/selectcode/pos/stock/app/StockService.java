@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * The only code that changes stock (docs/ARCHITECTURE.md §6, D1–D3, NFR-03/04/05). Every method runs inside the
+ * The only code that changes stock (docs/architecture/ARCHITECTURE.md §6, D1–D3, NFR-03/04/05). Every method runs inside the
  * caller's document transaction, so the document, its stock moves, payments and ledgers commit together or not at all.
  *
  * <ul>

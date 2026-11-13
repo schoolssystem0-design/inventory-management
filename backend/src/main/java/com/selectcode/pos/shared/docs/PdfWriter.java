@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * A4 PDFs from a {@link TableDoc} (docs/ARCHITECTURE.md §9): statements, purchase orders, invoices and reports.
+ * A4 PDFs from a {@link TableDoc} (docs/architecture/ARCHITECTURE.md §9): statements, purchase orders, invoices and reports.
  * Landscape when there are many columns. Money is right-aligned with thousands separators.
  */
 public final class PdfWriter {

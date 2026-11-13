@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
 
-/** Architecture rules (docs/ARCHITECTURE.md §2, docs/SECURITY.md §2, docs/CODING-STANDARDS.md). */
+/** Architecture rules (docs/architecture/ARCHITECTURE.md §2, docs/architecture/SECURITY.md §2, docs/architecture/CODING-STANDARDS.md). */
 class ArchitectureTest {
 
 	static JavaClasses classes;

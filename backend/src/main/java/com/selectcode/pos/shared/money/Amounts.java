@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Money and quantity rules (docs/CODING-STANDARDS.md §3): money is {@code BigDecimal} at 2 decimals, quantities at 3,
+ * Money and quantity rules (docs/architecture/CODING-STANDARDS.md §3): money is {@code BigDecimal} at 2 decimals, quantities at 3,
  * both HALF_UP, and both travel as strings in JSON. Never use double/float (ArchitectureTest).
  */
 public final class Amounts {

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 /**
  * Which branches the current user may work in (ACC-03). Users tied to branches only see and act in those; the owner,
  * users with "every branch" and SelectCode support see all. Branch scoping is a query filter, not RLS
- * (docs/ARCHITECTURE.md §3).
+ * (docs/architecture/ARCHITECTURE.md §3).
  */
 @Component
 public class BranchAccess {

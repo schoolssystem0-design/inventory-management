@@ -21,7 +21,7 @@ Status: **complete — waiting for approval**
 | Billing | Renewal invoices a week before the due date; reminders 7, 3 and 1 days before and when overdue, once each; daily status job Trial / Active → Grace → Read-only (read-only shops get 402 on every write); payments recorded by SelectCode make the shop Active and move the next due date; upgrades now with a pro-rata invoice, downgrades at the next cycle; super admin status override with reason | BIL-05..10, ONB-04, 05 |
 | Operations | Owner checklist (profile, logo, staff, products, opening stock, printer, test sale) for the shop and the platform; terms acceptance stored with version and time; closed shops deleted after 90 days (billing and platform audit kept), activity history after 2 years; 600 API calls a minute per user, 5 exports an hour per shop; demo shop per type rebuilt every night with sample data | ONB-02, 06, OPS-01, 05, 13..16 |
 
-The API grew from 98 to 245 operations. The Stage 3 list is in [API-CONVENTIONS.md §4b](../API-CONVENTIONS.md); data model notes are in [DATA-MODEL.md §13](../DATA-MODEL.md).
+The API grew from 98 to 245 operations. The Stage 3 list is in [API-CONVENTIONS.md §4b](../architecture/API-CONVENTIONS.md); data model notes are in [DATA-MODEL.md §13](../architecture/DATA-MODEL.md).
 
 ## Tests
 

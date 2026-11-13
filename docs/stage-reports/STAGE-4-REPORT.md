@@ -79,7 +79,7 @@ Every screen staff use each day now exists and is connected to the Stage 3 API.
 
 One journey, "sell a phone by IMEI, then find it in IMEI search", passes the sale part. The search part needs the API restarted (see below).
 
-Screenshots: [stage-4-screens/](stage-4-screens/) (28 images, desktop and phone).
+Screenshots: [stage-4-screens/](stage-4-screens) (28 images, desktop and phone).
 Recording of a sale: [stage-4-screens/sale-recording.webm](stage-4-screens/sale-recording.webm). It shows search, scan, `3*code`, a 5 % bill discount, split payment, cash with change, and the sale done.
 
 ## Bugs found and fixed while testing

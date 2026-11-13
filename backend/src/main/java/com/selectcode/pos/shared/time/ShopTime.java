@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import org.springframework.stereotype.Component;
 
 /**
- * Business dates (docs/DATA-MODEL.md §1): stored in UTC, but "today", same-day cancellation and daily reports follow
+ * Business dates (docs/architecture/DATA-MODEL.md §1): stored in UTC, but "today", same-day cancellation and daily reports follow
  * the shop's time zone. Every Phase 1 shop is in Pakistan.
  */
 @Component

@@ -29,7 +29,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Session-cookie security for the Next.js app (docs/SECURITY.md): server-side sessions (Spring Session JDBC), CSRF
+ * Session-cookie security for the Next.js app (docs/architecture/SECURITY.md): server-side sessions (Spring Session JDBC), CSRF
  * double-submit cookie, CORS restricted to our domains, JSON problem responses for 401/403.
  */
 @Configuration(proxyBeanMethods = false)

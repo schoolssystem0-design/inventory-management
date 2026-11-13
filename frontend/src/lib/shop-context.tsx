@@ -39,7 +39,7 @@ export function useCan() {
   return React.useCallback((permission: string) => permissions.includes(permission), [permissions]);
 }
 
-/** Whether a module (docs/SHOP-TYPES-AND-MODULES.md) is on for this shop. */
+/** Whether a module (docs/requirements/SHOP-TYPES-AND-MODULES.md) is on for this shop. */
 export function useFeature() {
   const { modules } = useShop();
   return React.useCallback((key: string) => modules.some((m) => m.key === key), [modules]);

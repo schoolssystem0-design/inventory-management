@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 
 /**
- * A business error with a stable lowercase {@code code} (docs/API-CONVENTIONS.md §3). The message is shown to shop staff
+ * A business error with a stable lowercase {@code code} (docs/architecture/API-CONVENTIONS.md §3). The message is shown to shop staff
  * as the problem's {@code detail}, so write it in plain words.
  */
 public class ApiException extends RuntimeException {

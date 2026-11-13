@@ -1,5 +1,5 @@
 /**
- * Which part of the app a request belongs to (docs/ARCHITECTURE.md §1):
+ * Which part of the app a request belongs to (docs/architecture/ARCHITECTURE.md §1):
  * - `admin.<root>`        → the platform portal (rewritten to /platform/...); `/support/...` → the shop app in support mode
  * - `<shopcode>.<root>`   → that shop's app (rewritten to /shop/...)
  * - `<root>`              → the landing page where a shop code is entered

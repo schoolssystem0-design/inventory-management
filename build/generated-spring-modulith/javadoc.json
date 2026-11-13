@@ -1,1 +1,0 @@
-[{"name":"com.selectcode.pos.shared.security.AbuseIT","comment":"What a dishonest or careless user might try against the Stage 4b modules (QA pass 2026-11-13): prices changed\r through side doors, points pushed below zero, documents used twice, odd input. Every case must be refused with a\r clear 4xx answer, never a 500 and never a silent success."}]

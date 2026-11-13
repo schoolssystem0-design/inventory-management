@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Stock is rebuildable from its history (NFR-05, D1): for every product, branch and batch the stored quantity must
  * equal the sum of its movements, and every serial unit in stock must be counted. Runs at 03:00 every night
- * (docs/ARCHITECTURE.md §10) and on demand; any difference is logged as an error for the on-call developer.
+ * (docs/architecture/ARCHITECTURE.md §10) and on demand; any difference is logged as an error for the on-call developer.
  */
 @Service
 public class StockAudit {

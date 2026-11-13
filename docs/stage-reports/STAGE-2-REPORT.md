@@ -18,7 +18,7 @@ Status: **complete — waiting for approval**
 | PWA | Manifest, icons, theme colour |
 | CI | `.github/workflows/frontend.yml`: lint, typecheck, unit tests, build, API-types drift check, then the Playwright journeys against a real API with demo data |
 
-Screenshots of the main screens are in [stage-2-screens/](stage-2-screens/) (desktop 1440 px and phone).
+Screenshots of the main screens are in [stage-2-screens/](stage-2-screens) (desktop 1440 px and phone).
 
 ## Tests
 

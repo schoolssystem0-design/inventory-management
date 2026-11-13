@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Everything the app needs after sign-in, in one call (docs/API-CONVENTIONS.md, GET /shop/context): the shop, the user,
+ * Everything the app needs after sign-in, in one call (docs/architecture/API-CONVENTIONS.md, GET /shop/context): the shop, the user,
  * permissions, enabled modules, the branches the user may use, plan limits and usage, key settings and the banner
  * (trial ending, overdue, read-only, support session).
  */

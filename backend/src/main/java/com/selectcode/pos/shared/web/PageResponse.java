@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.springframework.data.domain.Page;
 
-/** Paged list response (docs/API-CONVENTIONS.md §2): {@code items, page, size, total}. */
+/** Paged list response (docs/architecture/API-CONVENTIONS.md §2): {@code items, page, size, total}. */
 public record PageResponse<T>(List<T> items, int page, int size, long total) {
 
 	public static <E, T> PageResponse<T> of(Page<E> page, Function<E, T> mapper) {

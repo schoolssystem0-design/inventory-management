@@ -73,7 +73,7 @@ D:\inventory-management-system\
 
 **Needs from you:** nothing (runs on this PC; the database is embedded).
 
-**Status:** complete — see [stage-reports/STAGE-1-REPORT.md](stage-reports/STAGE-1-REPORT.md).
+**Status:** complete — see [stage-reports/STAGE-1-REPORT.md](../stage-reports/STAGE-1-REPORT.md).
 
 ---
 
@@ -106,7 +106,7 @@ D:\inventory-management-system\
 
 **Needs from you:** approval of the look on the screenshots.
 
-**Status:** complete 2026-11-08 — see [stage-reports/STAGE-2-REPORT.md](stage-reports/STAGE-2-REPORT.md). Waiting for approval.
+**Status:** complete 2026-11-08 — see [stage-reports/STAGE-2-REPORT.md](../stage-reports/STAGE-2-REPORT.md). Waiting for approval.
 
 ---
 
@@ -142,7 +142,7 @@ D:\inventory-management-system\
 
 **Needs from you:** decision on any business rule the requirements leave open (listed in the report).
 
-**Status:** complete 2026-11-08 — see [stage-reports/STAGE-3-REPORT.md](stage-reports/STAGE-3-REPORT.md). Waiting for approval.
+**Status:** complete 2026-11-08 — see [stage-reports/STAGE-3-REPORT.md](../stage-reports/STAGE-3-REPORT.md). Waiting for approval.
 
 ---
 
@@ -175,7 +175,7 @@ D:\inventory-management-system\
 
 **Needs from you:** approval of the POS flow.
 
-**Status:** complete 2026-11-09 — see [stage-reports/STAGE-4-REPORT.md](stage-reports/STAGE-4-REPORT.md). Waiting for approval.
+**Status:** complete 2026-11-09 — see [stage-reports/STAGE-4-REPORT.md](../stage-reports/STAGE-4-REPORT.md). Waiting for approval.
 
 ---
 
@@ -212,7 +212,7 @@ D:\inventory-management-system\
 
 **Needs from you:** any change to the design decisions above.
 
-**Status:** complete 2026-11-13 (screenshots pending a dev-server restart) — see [stage-reports/STAGE-4B-REPORT.md](stage-reports/STAGE-4B-REPORT.md). Waiting for approval.
+**Status:** complete 2026-11-13 (screenshots pending a dev-server restart) — see [stage-reports/STAGE-4B-REPORT.md](../stage-reports/STAGE-4B-REPORT.md). Waiting for approval.
 
 ---
 

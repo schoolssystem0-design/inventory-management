@@ -48,7 +48,7 @@ public class RequestPrincipalFilter extends OncePerRequestFilter {
 
 	private final com.selectcode.pos.shared.web.RateLimiter rateLimiter;
 
-	/** API calls per signed-in user per minute (docs/API-CONVENTIONS.md §5, OPS-13). */
+	/** API calls per signed-in user per minute (docs/architecture/API-CONVENTIONS.md §5, OPS-13). */
 	static final int REQUESTS_PER_MINUTE = 600;
 
 	public RequestPrincipalFilter(List<PrincipalRefresher> refreshers, JsonMapper json,

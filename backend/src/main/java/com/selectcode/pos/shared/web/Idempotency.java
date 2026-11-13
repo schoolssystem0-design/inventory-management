@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Idempotency keys for requests that create money documents (docs/API-CONVENTIONS.md §2, POS-09). The key row is
+ * Idempotency keys for requests that create money documents (docs/architecture/API-CONVENTIONS.md §2, POS-09). The key row is
  * inserted first in the caller's transaction: a second request with the same key waits for the first to commit and
  * then gets the first document instead of making a duplicate. If the first rolls back, the second goes ahead.
  */

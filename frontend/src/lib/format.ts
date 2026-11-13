@@ -1,5 +1,5 @@
 /**
- * Display formatting (docs/CODING-STANDARDS.md §3). The API sends money and quantities as strings ("1250.50"); they
+ * Display formatting (docs/architecture/CODING-STANDARDS.md §3). The API sends money and quantities as strings ("1250.50"); they
  * are never turned into JS numbers for arithmetic, only for display.
  */
 

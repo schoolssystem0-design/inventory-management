@@ -8,7 +8,7 @@ export const API_BASE = "/api/v1";
 
 export type FieldError = { field: string; code: string; message: string };
 
-/** A failed API call, parsed from the backend's problem response (docs/API-CONVENTIONS.md §3). */
+/** A failed API call, parsed from the backend's problem response (docs/architecture/API-CONVENTIONS.md §3). */
 export class ApiError extends Error {
   constructor(
     readonly status: number,

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The shop permission catalogue (docs/ARCHITECTURE.md §5). Codes are {@code area.action}. Constants are compile-time
+ * The shop permission catalogue (docs/architecture/ARCHITECTURE.md §5). Codes are {@code area.action}. Constants are compile-time
  * strings so they can be used in {@code @PreAuthorize}. Permissions for later stages are listed now so system roles
  * are complete from the first shop onwards.
  */

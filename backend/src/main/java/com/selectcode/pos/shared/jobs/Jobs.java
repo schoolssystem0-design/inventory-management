@@ -13,7 +13,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Background jobs (docs/ARCHITECTURE.md §10): a Postgres advisory lock makes sure only one API instance runs a job,
+ * Background jobs (docs/architecture/ARCHITECTURE.md §10): a Postgres advisory lock makes sure only one API instance runs a job,
  * and each shop is processed in its own transaction with the shop in context, so one shop's failure does not stop the
  * others. Scheduled methods call {@link #enabled()} first; tests switch scheduling off and call the jobs directly.
  */

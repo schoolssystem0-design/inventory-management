@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The money rules of selling and buying (docs/ARCHITECTURE.md §6–7, CODING-STANDARDS.md §3), kept free of the database
+ * The money rules of selling and buying (docs/architecture/ARCHITECTURE.md §6–7, CODING-STANDARDS.md §3), kept free of the database
  * so the shared test vectors in {@code docs/test-vectors/money.json} can check them directly.
  */
 public final class SaleMath {

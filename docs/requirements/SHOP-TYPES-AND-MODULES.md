@@ -61,7 +61,7 @@ Core modules (`core.*`) are always on and cannot be switched off.
 | `jewellery` | Weight, karat, gold rate, making charges | No | 3 | serials |
 | `optical` | Eye prescriptions, lens orders | No | 3 | repairs |
 
-**Built early (Stage 4b, 2026-11-13):** `repairs`, `installments`, `prescriptions`, `scale_barcodes`, `promotions` (offers and coupons), `loyalty` and `delivery` (deliveries and challans) are built ahead of Phase 2, so every default module of the 10 shop types works. Rules: docs/IMPLEMENTATION-STAGES.md, Stage 4b.
+**Built early (Stage 4b, 2026-11-13):** `repairs`, `installments`, `prescriptions`, `scale_barcodes`, `promotions` (offers and coupons), `loyalty` and `delivery` (deliveries and challans) are built ahead of Phase 2, so every default module of the 10 shop types works. Rules: docs/planning/IMPLEMENTATION-STAGES.md, Stage 4b.
 
 ## 3. Defaults per shop type
 

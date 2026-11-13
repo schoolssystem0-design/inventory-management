@@ -83,7 +83,7 @@
 			<artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
-		<!-- PDFs: invoices, statements, purchase orders, reports (docs/ARCHITECTURE.md §9) -->
+		<!-- PDFs: invoices, statements, purchase orders, reports (docs/architecture/ARCHITECTURE.md §9) -->
 		<dependency>
 			<groupId>com.github.librepdf</groupId>
 			<artifactId>openpdf</artifactId>

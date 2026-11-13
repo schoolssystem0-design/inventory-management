@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 /**
- * Module switches per shop (docs/SHOP-TYPES-AND-MODULES.md §1) and plan limits (BIL-08). Switches are cached per shop
+ * Module switches per shop (docs/requirements/SHOP-TYPES-AND-MODULES.md §1) and plan limits (BIL-08). Switches are cached per shop
  * and evicted whenever they change.
  */
 @Service

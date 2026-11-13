@@ -23,7 +23,7 @@ Status: **complete**
 | Context | `GET /shop/context`: shop, user, permissions, modules, allowed branches, plan limits and usage, settings, support and trial/overdue banners | — |
 | CI | GitHub Actions: build, all tests, OpenAPI drift check | OPS-10 |
 
-The full list of 98 API operations is in `backend/openapi.json` and summarised in [API-CONVENTIONS.md §4a](../API-CONVENTIONS.md).
+The full list of 98 API operations is in `backend/openapi.json` and summarised in [API-CONVENTIONS.md §4a](../architecture/API-CONVENTIONS.md).
 
 ## Tests
 

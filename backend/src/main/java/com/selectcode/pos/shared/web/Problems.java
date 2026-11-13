@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 
 /**
- * Builds RFC 9457 problem responses in the project's shape (docs/API-CONVENTIONS.md §3): a stable lowercase
+ * Builds RFC 9457 problem responses in the project's shape (docs/architecture/API-CONVENTIONS.md §3): a stable lowercase
  * {@code code}, a {@code detail} written for shop staff, {@code requestId} and optional field {@code errors}.
  */
 public final class Problems {

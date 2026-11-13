@@ -5,7 +5,7 @@ import java.util.Set;
 import org.springframework.http.HttpStatus;
 
 /**
- * Which modules are switched on for the current shop (docs/ARCHITECTURE.md §4). Implemented by the platform module,
+ * Which modules are switched on for the current shop (docs/architecture/ARCHITECTURE.md §4). Implemented by the platform module,
  * cached per shop and evicted when a switch changes.
  */
 public interface ShopFeatures {

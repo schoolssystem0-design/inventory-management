@@ -1,5 +1,5 @@
 /**
- * Exact money and quantity maths for the till (docs/CODING-STANDARDS.md §3), the same rules as the server's SaleMath:
+ * Exact money and quantity maths for the till (docs/architecture/CODING-STANDARDS.md §3), the same rules as the server's SaleMath:
  * money is kept as whole paisa and quantities as thousandths in BigInt, rounding HALF_UP. Never parseFloat money.
  * The shared vectors in docs/test-vectors/money.json check both sides.
  */

@@ -83,7 +83,7 @@ public class ApprovalService {
 	}
 
 	/**
-	 * An over-limit action (ACC-04, docs/API-CONVENTIONS.md §2 "Approvals"). A user who may approve (owner, or
+	 * An over-limit action (ACC-04, docs/architecture/API-CONVENTIONS.md §2 "Approvals"). A user who may approve (owner, or
 	 * {@code approvals.grant} plus {@code permission}) approves their own action. Anyone else must send an approver
 	 * and PIN ({@code X-Approval-User}, {@code X-Approval-Pin}); without them the answer is 403
 	 * {@code approval_required} naming the limit that was hit.

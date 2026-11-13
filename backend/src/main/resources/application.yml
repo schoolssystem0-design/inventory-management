@@ -1,4 +1,4 @@
-# Defaults for every environment. Secrets come from environment variables only (docs/DEPLOYMENT-RUNBOOK.md §4).
+# Defaults for every environment. Secrets come from environment variables only (docs/planning/DEPLOYMENT-RUNBOOK.md §4).
 spring:
   application:
     name: pos-backend

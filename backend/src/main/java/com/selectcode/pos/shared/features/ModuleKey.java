@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Switchable modules (docs/SHOP-TYPES-AND-MODULES.md §2). Core modules are always on and not listed here. The key is
+ * Switchable modules (docs/requirements/SHOP-TYPES-AND-MODULES.md §2). Core modules are always on and not listed here. The key is
  * what is stored in {@code shop_module} and returned to the app.
  */
 public enum ModuleKey {

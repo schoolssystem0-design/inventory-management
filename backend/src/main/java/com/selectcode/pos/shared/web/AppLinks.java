@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Links to the web app for emails and SMS: shops live at {@code <code>.<root-domain>}, the platform portal at
- * {@code admin.<root-domain>} (docs/ARCHITECTURE.md §1).
+ * {@code admin.<root-domain>} (docs/architecture/ARCHITECTURE.md §1).
  */
 @Component
 public class AppLinks {

@@ -5,7 +5,7 @@ import java.util.Set;
 
 /**
  * What a file is for: decides allowed types, maximum size, who may upload it and who may download it
- * (docs/SECURITY.md §2). An empty upload or download set means any signed-in user of the shop.
+ * (docs/architecture/SECURITY.md §2). An empty upload or download set means any signed-in user of the shop.
  */
 public enum FilePurpose {
 
