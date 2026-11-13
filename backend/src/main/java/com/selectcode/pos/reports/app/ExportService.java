@@ -157,14 +157,14 @@ public class ExportService {
 					List<TableDoc> sheets = backup();
 					bytes = ExcelWriter.write(sheets);
 					rows = sheets.stream().mapToInt(d -> d.rows().size()).sum();
-					name = "backup-" + LocalDate.now() + ".xlsx";
+					name = "backup-" + LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE) + ".xlsx";
 				}
 				else {
 					ReportResult result = reports.run(kind, in.from(), in.to(), in.branchId(), in.params(), access, null);
 					TableDoc doc = ReportService.toDoc(result);
 					bytes = "PDF".equals(format) ? PdfWriter.write(doc) : ExcelWriter.write(doc);
 					rows = result.rows().size();
-					name = kind + "-" + LocalDate.now() + ("PDF".equals(format) ? ".pdf" : ".xlsx");
+					name = kind + "-" + LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE) + ("PDF".equals(format) ? ".pdf" : ".xlsx");
 				}
 				var file = files.store(FilePurpose.EXPORT, name, "PDF".equals(format) ? "application/pdf" : XLSX, bytes,
 						userId);

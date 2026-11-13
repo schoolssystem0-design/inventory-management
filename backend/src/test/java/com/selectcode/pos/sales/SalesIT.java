@@ -354,9 +354,9 @@ class SalesIT extends IntegrationTest {
 				{"name":"Panadol 500","price":"30","costPrice":"0","unitId":%d,"kind":"BATCH",
 				 "packUnits":[{"unitId":%d,"factor":"10","price":"280"}],"pharma":{"formula":"Paracetamol"}}"""
 			.formatted(strip, box)).andExpect(status().isCreated()), "$.id")).longValue();
-		LocalDate soon = LocalDate.now().plusDays(45);
-		LocalDate later = LocalDate.now().plusYears(1);
-		LocalDate past = LocalDate.now().minusDays(3);
+		LocalDate soon = java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).plusDays(45);
+		LocalDate later = java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).plusYears(1);
+		LocalDate past = java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).minusDays(3);
 		for (String[] b : List.of(new String[] { "LATE", later.toString() }, new String[] { "SOON", soon.toString() },
 				new String[] { "OLD", past.toString() })) {
 			s.owner().postWithKey("/api/v1/grns", """
@@ -441,7 +441,7 @@ class SalesIT extends IntegrationTest {
 				 "payments":[{"method":"CASH","amount":"110000"}]}""".formatted(s.session(), phone))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.lines[0].serial").value("353000111222333"))
-			.andExpect(jsonPath("$.lines[0].warrantyUntil").value(LocalDate.now().plusDays(7).toString())), "$.id");
+			.andExpect(jsonPath("$.lines[0].warrantyUntil").value(java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).plusDays(7).toString())), "$.id");
 		// Second till tries the same IMEI: refused (TC-STK-03 single-threaded form).
 		sell(s.owner(), """
 				{"tillSessionId":%d,"lines":[{"productId":%d,"serials":["353000111222333"]}],

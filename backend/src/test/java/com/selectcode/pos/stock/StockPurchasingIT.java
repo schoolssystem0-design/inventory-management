@@ -279,15 +279,15 @@ class StockPurchasingIT extends IntegrationTest {
 		long branch = t.defaultBranch();
 		long supplier = t.supplier("Distributor");
 		long syrup = t.product("Cough syrup", "250", "0", "BATCH", null);
-		var expired = java.time.LocalDate.now().minusDays(10);
+		var expired = java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).minusDays(10);
 		Integer grn1 = Trading.read(owner.postWithKey("/api/v1/grns", """
 				{"supplierId":%d,"branchId":%d,"billDate":"%s","lines":[{"productId":%d,"qty":"12","unitCost":"150",
-				 "batchNo":"B-OLD","expiry":"%s"}]}""".formatted(supplier, branch, java.time.LocalDate.now().minusDays(60),
+				 "batchNo":"B-OLD","expiry":"%s"}]}""".formatted(supplier, branch, java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).minusDays(60),
 				syrup, expired), Trading.key()).andExpect(status().isCreated()), "$.id");
 		owner.postWithKey("/api/v1/grns", """
 				{"supplierId":%d,"branchId":%d,"lines":[{"productId":%d,"qty":"10","unitCost":"160",
 				 "batchNo":"B-NEW","expiry":"%s"}]}""".formatted(supplier, branch, syrup,
-				java.time.LocalDate.now().plusYears(1)), Trading.key()).andExpect(status().isCreated());
+				java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).plusYears(1)), Trading.key()).andExpect(status().isCreated());
 		Integer grnLine = Trading.read(owner.get("/api/v1/grns/" + grn1), "$.lines[0].id");
 		// 12 expired syrups back to the distributor: stock −12, owed −1,800 (TC-PUR-03).
 		owner.post("/api/v1/purchase-returns", """

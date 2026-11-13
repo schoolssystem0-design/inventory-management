@@ -316,7 +316,7 @@ class QaSecurityIT extends IntegrationTest {
 		long a = t.product("Panadol 500", "30", "0", "BATCH", "\"pharma\":{\"formula\":\"Paracetamol\"}");
 		long b = t.product("Calpol 500", "28", "0", "BATCH", "\"pharma\":{\"formula\":\"Paracetamol\"}");
 		t.product("Brufen 400", "40", "0", "BATCH", "\"pharma\":{\"formula\":\"Ibuprofen\"}");
-		String soon = java.time.LocalDate.now().plusDays(45).toString();
+		String soon = java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).plusDays(45).toString();
 		shop.owner().postWithKey("/api/v1/grns", """
 				{"supplierId":%d,"branchId":%d,"lines":[{"productId":%d,"qty":"10","unitCost":"20","batchNo":"S1","expiry":"%s"},
 				 {"productId":%d,"qty":"10","unitCost":"20","batchNo":"L1","expiry":"2030-01-01"}]}"""

@@ -196,7 +196,7 @@ class Phase2ModulesIT extends IntegrationTest {
 		s.owner().get("/api/v1/customers/" + customer).andExpect(jsonPath("$.balance").value("88000.00"));
 		// The first installment falls due 10 days ago: 7 days after its 3 grace days → Rs 700 late fee.
 		TestDatabase.superuser().update("update installment_due set due_on = ? where plan_id = ? and no = 1",
-				java.sql.Date.valueOf(LocalDate.now().minusDays(10)), plan);
+				java.sql.Date.valueOf(java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE).minusDays(10)), plan);
 		s.owner().get("/api/v1/installments/due?overdue=true").andExpect(jsonPath("$[0].daysLate").value(7))
 			.andExpect(jsonPath("$[0].lateFee").value("700.00"));
 		s.owner().postWithKey("/api/v1/installment-plans/" + plan + "/receive", """
@@ -279,7 +279,7 @@ class Phase2ModulesIT extends IntegrationTest {
 		assertThat(s.t().onHand(cement, s.branch())).isEqualTo("90.000");
 		Integer delivery = Trading.read(s.owner().post("/api/v1/deliveries", """
 				{"challanId":%d,"scheduledOn":"%s","driver":"Rafiq","vehicle":"LES-1234"}"""
-			.formatted(challan, LocalDate.now())).andExpect(status().isCreated())
+			.formatted(challan, java.time.LocalDate.now(com.selectcode.pos.shared.time.ShopTime.ZONE))).andExpect(status().isCreated())
 			.andExpect(jsonPath("$.address").value("Plot 12, DHA")), "$.id");
 		s.owner().patch("/api/v1/deliveries/" + delivery, "{\"status\":\"ON_THE_WAY\"}").andExpect(jsonPath("$.status").value("ON_THE_WAY"));
 		s.owner().patch("/api/v1/deliveries/" + delivery, "{\"status\":\"DELIVERED\",\"receivedBy\":\"Site manager\"}")
