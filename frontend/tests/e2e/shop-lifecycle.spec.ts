@@ -16,7 +16,8 @@ test.describe.serial("shop lifecycle", () => {
   });
 
   test.afterAll(async () => {
-    await platform.context().close();
+    // Closing can wait on a page still loading on a slow CI runner; never let clean-up fail a passing run.
+    await Promise.race([platform.context().close(), new Promise((resolve) => setTimeout(resolve, 15_000))]);
   });
 
   test("platform overview loads after TOTP sign-in", async () => {
@@ -191,6 +192,7 @@ test.describe.serial("shop lifecycle", () => {
     await expect(platform.getByText("Panadol 500mg")).toBeVisible();
 
     await platform.getByRole("button", { name: "Leave support session" }).click();
+    await platform.waitForLoadState("networkidle");
     await expect(platform).toHaveURL(new RegExp(`admin\\.${ROOT_RE}`));
   });
 });
