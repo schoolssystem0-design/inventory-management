@@ -33,6 +33,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -213,7 +214,7 @@ public class ProductImportService {
 					left join product_pharma f on f.product_id = p.id
 					left join product_part pp on pp.product_id = p.id
 					left join product_book bk on bk.product_id = p.id
-					order by p.name""", rs -> {
+					order by p.name""", (RowCallbackHandler) rs -> {
 				Map<String, String> v = new HashMap<>();
 				v.put("SKU", rs.getString("sku"));
 				v.put("Name", rs.getString("name"));
