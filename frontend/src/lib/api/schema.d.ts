@@ -9018,6 +9018,7 @@ export interface operations {
                 from?: string;
                 to?: string;
                 saleId?: number;
+                challanId?: number;
                 page?: number;
                 size?: number;
             };
