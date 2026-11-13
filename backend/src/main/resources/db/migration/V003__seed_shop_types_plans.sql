@@ -1,0 +1,71 @@
+-- =====================================================================
+-- V003: shop type templates, plans and platform settings
+-- docs/SHOP-TYPES-AND-MODULES.md §3, §5 and requirements PDF §9, §16
+-- =====================================================================
+
+INSERT INTO shop_type (type_key, name, description, icon, sort_order, default_modules, offered_modules, template) VALUES
+('mobile', 'Mobile shop', 'Mobile phones and accessories: IMEI tracking, used phones, repairs, warranty', 'smartphone', 1,
+ '{serials,repairs,used_buyback,warranty}',
+ '{installments,variants,batches,pack_units,promotions,loyalty,multi_till,quotations,bundles,sms}',
+ '{"categories":["Smartphones","Feature phones","Tablets","Covers","Chargers","Cables","Handsfree","Screen protectors","Parts"],
+   "units":[{"name":"piece","decimals":false}]}'),
+('super_store', 'Super store / mart', 'Supermarkets and marts: thousands of barcoded items, weighed items, fast tills, offers', 'shopping-cart', 2,
+ '{pack_units,weighed,scale_barcodes,promotions,loyalty,multi_till}',
+ '{serials,installments,variants,batches,quotations,delivery,bundles,sms}',
+ '{"categories":["Grocery","Dairy","Beverages","Snacks","Personal care","Household","Baby care","Frozen","Bakery","Fruits & vegetables"],
+   "units":[{"name":"piece","decimals":false},{"name":"kg","decimals":true},{"name":"gram","decimals":true},{"name":"litre","decimals":true},{"name":"pack","decimals":false},{"name":"carton","decimals":false},{"name":"dozen","decimals":false}]}'),
+('medical', 'Medical store / pharmacy', 'Pharmacies: batches and expiry, strips and tablets, formula search, prescriptions', 'pill', 3,
+ '{batches,pack_units,formula,prescriptions,multi_till}',
+ '{weighed,scale_barcodes,promotions,loyalty,quotations,delivery,bundles,sms}',
+ '{"categories":["Tablets","Capsules","Syrups","Injections","Drops","Ointments","Surgical","Baby care","Supplements"],
+   "units":[{"name":"tablet","decimals":false},{"name":"strip","decimals":false},{"name":"box","decimals":false},{"name":"bottle","decimals":false},{"name":"vial","decimals":false},{"name":"tube","decimals":false}]}'),
+('garments', 'Garments and shoes', 'Clothing and shoe shops: sizes and colours, seasons, exchanges', 'shirt', 4,
+ '{variants,promotions,loyalty}',
+ '{installments,pack_units,multi_till,quotations,delivery,bundles,sms}',
+ '{"categories":["Men","Women","Kids","Unstitched","Shoes","Accessories"],
+   "units":[{"name":"piece","decimals":false},{"name":"suit","decimals":false},{"name":"metre","decimals":true},{"name":"pair","decimals":false}]}'),
+('electronics', 'Electronics and appliances', 'TV, fridge, AC and laptop shops: serial numbers, warranty, installments, delivery', 'tv', 5,
+ '{serials,installments,warranty,quotations,delivery}',
+ '{repairs,used_buyback,variants,pack_units,promotions,loyalty,multi_till,bundles,sms}',
+ '{"categories":["TV","Refrigerators","Air conditioners","Washing machines","Laptops","Small appliances"],
+   "units":[{"name":"piece","decimals":false}]}'),
+('hardware', 'Hardware and building material', 'Hardware, sanitary, paint and building material: many units, quotations, contractors', 'hammer', 6,
+ '{pack_units,quotations,delivery}',
+ '{serials,installments,warranty,variants,batches,weighed,scale_barcodes,promotions,loyalty,multi_till,bundles,sms}',
+ '{"categories":["Sanitary","Electrical","Paint","Tools","Pipes","Building material"],
+   "units":[{"name":"piece","decimals":false},{"name":"box","decimals":false},{"name":"foot","decimals":true},{"name":"metre","decimals":true},{"name":"kg","decimals":true},{"name":"bag","decimals":false},{"name":"coil","decimals":false}]}'),
+('cosmetics', 'Cosmetics and general store', 'Cosmetics, gift, toy and crockery shops: shades, expiry, offers', 'sparkles', 7,
+ '{variants,batches,promotions,loyalty}',
+ '{pack_units,multi_till,quotations,bundles,sms}',
+ '{"categories":["Skin care","Hair care","Makeup","Fragrance"],
+   "units":[{"name":"piece","decimals":false}]}'),
+('books', 'Bookshop and stationery', 'Bookshops and stationers: ISBN, class-wise book sets, school orders', 'book-open', 8,
+ '{quotations,bundles}',
+ '{used_buyback,variants,batches,pack_units,promotions,loyalty,multi_till,delivery,sms}',
+ '{"categories":["Textbooks","Stationery","Story books","Exam guides"],
+   "units":[{"name":"piece","decimals":false},{"name":"set","decimals":false},{"name":"dozen","decimals":false},{"name":"ream","decimals":false}]}'),
+('auto_parts', 'Auto parts', 'Motorcycle and car parts: part numbers, alternates, workshop accounts', 'wrench', 9,
+ '{quotations,part_numbers}',
+ '{serials,installments,warranty,variants,batches,pack_units,promotions,loyalty,multi_till,delivery,bundles,sms}',
+ '{"categories":["Engine","Brakes","Suspension","Electrical","Body","Oils & lubricants"],
+   "units":[{"name":"piece","decimals":false},{"name":"set","decimals":false},{"name":"litre","decimals":true}]}'),
+('general', 'General / other', 'Any other shop: core modules only, extra modules switched on as needed', 'store', 10,
+ '{}',
+ '{serials,repairs,installments,warranty,variants,batches,pack_units,weighed,scale_barcodes,promotions,loyalty,multi_till,quotations,delivery,bundles,sms}',
+ '{"categories":["General"],"units":[{"name":"piece","decimals":false}]}');
+
+INSERT INTO plan (plan_key, name, price_month, price_year, setup_fee, max_users, max_branches, max_products, max_tills,
+                  sms_per_month, storage_mb, phase1_modules_only, custom_domain, sort_order) VALUES
+('starter', 'Starter', 2500, 25000, 5000, 2, 1, 3000, 1, 100, 1024, TRUE, FALSE, 1),
+('business', 'Business', 5500, 55000, 10000, 8, 3, 25000, 4, 500, 5120, FALSE, FALSE, 2),
+('enterprise', 'Enterprise', 12000, 120000, 20000, NULL, NULL, NULL, NULL, 2000, 20480, FALSE, TRUE, 3);
+
+INSERT INTO platform_setting (setting_key, value) VALUES
+('company_name', 'SelectCode'),
+('product_name', 'SelectCode POS'),
+('support_phone', ''),
+('support_email', ''),
+('trial_days', '14'),
+('grace_days', '7'),
+('setup_link_hours', '48'),
+('terms_version', '2026-11');

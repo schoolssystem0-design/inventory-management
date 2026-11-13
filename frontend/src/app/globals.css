@@ -1,0 +1,148 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * SelectCode POS design: the Mobile Shop System's graphite look (docs/CODING-STANDARDS.md §6).
+ * One graphite ramp for surfaces and text, one aqua accent, meaning colours only for status.
+ */
+@theme {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-code), ui-monospace, monospace;
+  --font-urdu: var(--font-nastaliq), "Noto Nastaliq Urdu", serif;
+
+  --color-ink: #ededed;
+  --color-muted: #a1a1a6;
+  --color-faint: #85858b;
+  --color-line: rgb(237 237 237 / 0.08);
+  --color-line-strong: rgb(237 237 237 / 0.16);
+  --color-page: #141415;
+  --color-deep: #0f0f10;
+  --color-card: #19191b;
+  --color-tile: #1e1e20;
+  --color-raised: #232325;
+
+  --color-aqua: #4fbfae;
+  --color-aqua-strong: #3aa898;
+  --color-on-aqua: #062420;
+
+  --color-good: #4cc38a;
+  --color-warn: #d9a84e;
+  --color-bad: #ee6b6f;
+  --color-info: #7fa8d8;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(237 237 237 / 0.18) transparent;
+}
+
+::selection {
+  background: rgb(79 191 174 / 0.35);
+}
+
+/* Grid children may shrink, so a wide table scrolls inside its card and not the whole page. */
+@layer base {
+  .grid > * {
+    min-width: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-aqua);
+    outline-offset: 2px;
+  }
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+}
+
+@layer components {
+  /* A card: one surface step above the page, edged with a hairline. Depth comes from steps, not shadows. */
+  .glass {
+    position: relative;
+    border-radius: 16px;
+    background: var(--color-card);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  /* Tiles in a grid: a step brighter, so they read as things to pick. */
+  .tile {
+    position: relative;
+    border-radius: 12px;
+    background: var(--color-tile);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    transition:
+      background-color 140ms var(--ease-out),
+      transform 140ms var(--ease-out);
+  }
+  a.tile:hover,
+  button.tile:hover:not(:disabled) {
+    background: var(--color-raised);
+  }
+  button.tile:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    background: var(--color-deep);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    transition: box-shadow 120ms var(--ease-out);
+  }
+  .field::placeholder {
+    color: var(--color-faint);
+  }
+  .field:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--color-aqua);
+  }
+  .field[aria-invalid="true"] {
+    box-shadow: inset 0 0 0 1px var(--color-bad);
+  }
+  .field:disabled {
+    opacity: 0.6;
+  }
+  .skeleton {
+    border-radius: 8px;
+    background: linear-gradient(90deg, #1e1e20 0%, #262628 50%, #1e1e20 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  .urdu {
+    font-family: var(--font-urdu);
+    direction: rtl;
+    line-height: 2;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Printing labels and documents: white paper, black ink, no app chrome. */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

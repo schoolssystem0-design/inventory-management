@@ -1,0 +1,9 @@
+app:
+  jobs:
+    enabled: false
+  root-domain: pos.test
+  files:
+    local-dir: target/test-files
+logging:
+  level:
+    com.selectcode.pos.shared.web.ApiExceptionHandler: error

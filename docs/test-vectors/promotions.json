@@ -1,0 +1,90 @@
+{
+  "_about": "Offers and coupons (SUP-05, XSL-02). Shared by backend (PromotionEngineTest) and frontend (promotions.test.ts). Item offers apply only to eligible lines (base unit, list price, no typed discount); the best offer per line wins (older offer on a tie); bill offers apply to the bill after line discounts when no bill discount was typed; coupon offers need their code.",
+  "lineAmount": [
+    { "name": "percent off", "offer": { "kind": "PERCENT", "value": "10.00" }, "qty": "3.000", "price": "99.99", "expected": "30.00" },
+    { "name": "amount off each, weighed", "offer": { "kind": "AMOUNT", "value": "15.00" }, "qty": "1.250", "price": "180.00", "expected": "18.75" },
+    { "name": "amount off never more than the line", "offer": { "kind": "AMOUNT", "value": "500.00" }, "qty": "1.000", "price": "120.00", "expected": "120.00" },
+    { "name": "buy 2 get 1 free, 7 bought", "offer": { "kind": "BUY_GET", "buyQty": "2.000", "getQty": "1.000" }, "qty": "7.000", "price": "50.00", "expected": "100.00" },
+    { "name": "buy 2 get 1 free, 2 bought", "offer": { "kind": "BUY_GET", "buyQty": "2.000", "getQty": "1.000" }, "qty": "2.000", "price": "50.00", "expected": "0.00" },
+    { "name": "3 for Rs 250, 7 bought", "offer": { "kind": "MULTI_PRICE", "buyQty": "3.000", "value": "250.00" }, "qty": "7.000", "price": "95.00", "expected": "70.00" },
+    { "name": "multi price dearer than normal gives nothing", "offer": { "kind": "MULTI_PRICE", "buyQty": "2.000", "value": "300.00" }, "qty": "2.000", "price": "100.00", "expected": "0.00" }
+  ],
+  "billAmount": [
+    { "name": "5% over Rs 1000", "offer": { "kind": "BILL_PERCENT", "value": "5.00", "minAmount": "1000.00" }, "bill": "1234.50", "expected": "61.73" },
+    { "name": "below the minimum", "offer": { "kind": "BILL_PERCENT", "value": "5.00", "minAmount": "1000.00" }, "bill": "999.99", "expected": "0.00" },
+    { "name": "Rs 100 off", "offer": { "kind": "BILL_AMOUNT", "value": "100.00", "minAmount": "500.00" }, "bill": "500.00", "expected": "100.00" }
+  ],
+  "running": [
+    { "name": "inside the dates", "offer": { "startsOn": "2026-11-01", "endsOn": "2026-11-30" }, "date": "2026-11-13", "time": "10:00", "expected": true },
+    { "name": "after the end date", "offer": { "startsOn": "2026-11-01", "endsOn": "2026-11-10" }, "date": "2026-11-13", "time": "10:00", "expected": false },
+    { "name": "Friday only, on a Friday", "offer": { "days": [5] }, "date": "2026-11-13", "time": "10:00", "expected": true },
+    { "name": "Friday only, on a Saturday", "offer": { "days": [5] }, "date": "2026-11-14", "time": "10:00", "expected": false },
+    { "name": "happy hour 17:00-19:00 at 18:30", "offer": { "fromTime": "17:00", "toTime": "19:00" }, "date": "2026-11-13", "time": "18:30", "expected": true },
+    { "name": "happy hour ends at 19:00", "offer": { "fromTime": "17:00", "toTime": "19:00" }, "date": "2026-11-13", "time": "19:00", "expected": false },
+    { "name": "late night 22:00-02:00 at 01:00", "offer": { "fromTime": "22:00", "toTime": "02:00" }, "date": "2026-11-13", "time": "01:00", "expected": true },
+    { "name": "used up", "offer": { "maxUses": 10, "uses": 10 }, "date": "2026-11-13", "time": "10:00", "expected": false },
+    { "name": "switched off", "offer": { "active": false }, "date": "2026-11-13", "time": "10:00", "expected": false }
+  ],
+  "apply": [
+    {
+      "name": "best offer per line; ineligible line gets none; bill offer on the rest",
+      "offers": [
+        { "id": 1, "kind": "PERCENT", "value": "10.00", "scope": "ALL" },
+        { "id": 2, "kind": "BUY_GET", "buyQty": "2.000", "getQty": "1.000", "scope": "PRODUCTS", "productIds": [11] },
+        { "id": 3, "kind": "BILL_AMOUNT", "value": "50.00", "minAmount": "300.00" }
+      ],
+      "lines": [
+        { "productId": 11, "categoryId": 1, "qty": "3.000", "price": "60.00", "eligible": true, "typedDiscount": "0.00" },
+        { "productId": 12, "categoryId": 2, "qty": "1.000", "price": "200.00", "eligible": true, "typedDiscount": "0.00" },
+        { "productId": 13, "categoryId": 2, "qty": "1.000", "price": "100.00", "eligible": false, "typedDiscount": "10.00" }
+      ],
+      "billTyped": false,
+      "coupon": null,
+      "expectedLines": [ { "offerId": 2, "amount": "60.00" }, { "offerId": 1, "amount": "20.00" }, { "offerId": null, "amount": "0.00" } ],
+      "expectedBill": { "offerId": 3, "amount": "50.00" },
+      "expectedCouponUsed": false
+    },
+    {
+      "name": "category offer; a tie goes to the older offer",
+      "offers": [
+        { "id": 7, "kind": "AMOUNT", "value": "10.00", "scope": "CATEGORY", "categoryIds": [5] },
+        { "id": 4, "kind": "PERCENT", "value": "10.00", "scope": "CATEGORY", "categoryIds": [5] }
+      ],
+      "lines": [ { "productId": 21, "categoryId": 5, "qty": "2.000", "price": "100.00", "eligible": true, "typedDiscount": "0.00" } ],
+      "billTyped": false,
+      "coupon": null,
+      "expectedLines": [ { "offerId": 4, "amount": "20.00" } ],
+      "expectedBill": { "offerId": null, "amount": "0.00" },
+      "expectedCouponUsed": false
+    },
+    {
+      "name": "coupon only with its code; typed bill discount stops bill offers",
+      "offers": [
+        { "id": 9, "kind": "PERCENT", "value": "20.00", "scope": "ALL", "couponCode": "EID20" },
+        { "id": 10, "kind": "BILL_PERCENT", "value": "5.00", "minAmount": "0.00" }
+      ],
+      "lines": [ { "productId": 31, "categoryId": null, "qty": "1.000", "price": "500.00", "eligible": true, "typedDiscount": "0.00" } ],
+      "billTyped": true,
+      "coupon": "eid20",
+      "expectedLines": [ { "offerId": 9, "amount": "100.00" } ],
+      "expectedBill": { "offerId": null, "amount": "0.00" },
+      "expectedCouponUsed": true
+    },
+    {
+      "name": "coupon not entered",
+      "offers": [ { "id": 9, "kind": "PERCENT", "value": "20.00", "scope": "ALL", "couponCode": "EID20" } ],
+      "lines": [ { "productId": 31, "categoryId": null, "qty": "1.000", "price": "500.00", "eligible": true, "typedDiscount": "0.00" } ],
+      "billTyped": false,
+      "coupon": null,
+      "expectedLines": [ { "offerId": null, "amount": "0.00" } ],
+      "expectedBill": { "offerId": null, "amount": "0.00" },
+      "expectedCouponUsed": false
+    }
+  ],
+  "scaleBarcode": [
+    { "name": "weight in grams", "barcode": "2100123015009", "mode": "WEIGHT", "expectedCode": "00123", "expectedValue": "1.500" },
+    { "name": "price in whole rupees", "barcode": "2200456012505", "mode": "PRICE", "expectedCode": "00456", "expectedValue": "1250.00" },
+    { "name": "bad check digit", "barcode": "2100123015008", "mode": "WEIGHT", "expectedCode": null, "expectedValue": null },
+    { "name": "not a scale prefix", "barcode": "8901234567891", "mode": "WEIGHT", "expectedCode": null, "expectedValue": null },
+    { "name": "too short", "barcode": "210012301500", "mode": "WEIGHT", "expectedCode": null, "expectedValue": null }
+  ]}

@@ -1,0 +1,68 @@
+{
+  "_about": "Shared numbers for backend (JUnit) and frontend (Vitest) tests. Money and quantities are strings. Rules: CODING-STANDARDS.md section 3, ARCHITECTURE.md sections 6-7.",
+  "averageCost": [
+    {
+      "name": "two receipts at different prices",
+      "onHand": "10.000", "currentAvg": "1850.00", "qtyIn": "5.000", "unitCost": "1910.00",
+      "expectedAvg": "1870.00"
+    },
+    {
+      "name": "no stock on hand takes the new cost",
+      "onHand": "0.000", "currentAvg": "1850.00", "qtyIn": "4.000", "unitCost": "1999.00",
+      "expectedAvg": "1999.00"
+    },
+    {
+      "name": "negative stock counts as zero",
+      "onHand": "-3.000", "currentAvg": "500.00", "qtyIn": "10.000", "unitCost": "520.00",
+      "expectedAvg": "520.00"
+    }
+  ],
+  "billDiscountSpread": [
+    {
+      "name": "remainder on last line",
+      "lines": [ { "net": "100.00" }, { "net": "200.00" }, { "net": "300.00" } ],
+      "billDiscount": "100.00",
+      "expectedLineDiscounts": [ "16.67", "33.33", "50.00" ]
+    }
+  ],
+  "returnRefund": [
+    {
+      "name": "return clears amount owed first",
+      "saleTotal": "2150.00", "alreadyReturned": "0.00", "paid": "250.00",
+      "returnValue": "2150.00",
+      "expectedDueBefore": "1900.00", "expectedMaxRefund": "250.00"
+    },
+    {
+      "name": "fully paid sale refunds the whole return value",
+      "saleTotal": "1000.00", "alreadyReturned": "0.00", "paid": "1000.00",
+      "returnValue": "400.00",
+      "expectedDueBefore": "0.00", "expectedMaxRefund": "400.00"
+    },
+    {
+      "name": "return smaller than amount owed gives no refund",
+      "saleTotal": "3000.00", "alreadyReturned": "0.00", "paid": "1000.00",
+      "returnValue": "500.00",
+      "expectedDueBefore": "2000.00", "expectedMaxRefund": "0.00"
+    }
+  ],
+  "reorderSuggestion": [
+    {
+      "name": "month of sales beats twice the reorder level",
+      "reorderLevel": "10", "sold30": "45", "onHand": "8", "onOrder": "12",
+      "expectedSuggest": "25"
+    },
+    {
+      "name": "twice the reorder level beats slow sales",
+      "reorderLevel": "10", "sold30": "4", "onHand": "3", "onOrder": "0",
+      "expectedSuggest": "17"
+    },
+    {
+      "name": "enough on order already",
+      "reorderLevel": "5", "sold30": "6", "onHand": "2", "onOrder": "20",
+      "expectedSuggest": "0"
+    }
+  ],
+  "weighedItem": [
+    { "name": "1.25 kg at 180 per kg", "qty": "1.250", "price": "180.00", "expectedLine": "225.00" }
+  ]
+}
