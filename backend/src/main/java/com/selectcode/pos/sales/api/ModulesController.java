@@ -82,9 +82,12 @@ class ModulesController {
 
 	private final ShopTime time;
 
+	private final com.selectcode.pos.sales.app.KitchenService kitchen;
+
 	ModulesController(PromotionService promotions, LoyaltyService loyalty, RepairService repairs,
 			InstallmentService installments, PrescriptionService prescriptions, DeliveryService deliveries,
-			ShopTime time) {
+			ShopTime time, com.selectcode.pos.sales.app.KitchenService kitchen) {
+		this.kitchen = kitchen;
 		this.promotions = promotions;
 		this.loyalty = loyalty;
 		this.repairs = repairs;
@@ -315,6 +318,32 @@ class ModulesController {
 			throw ApiException.field("from", "invalid", "Choose dates up to a year apart");
 		}
 		return prescriptions.register(start, end, productId, branchId);
+	}
+
+	// ---- kitchen (fast food)
+
+	@RequiresModule(ModuleKey.KITCHEN)
+	@PreAuthorize("hasAnyAuthority('kitchen.view', 'pos.sell')")
+	@GetMapping("/kitchen/tickets")
+	List<com.selectcode.pos.sales.app.KitchenService.TicketView> kitchenTickets(
+			@RequestParam(required = false) Long branchId, @RequestParam(required = false) String status,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+		return kitchen.list(branchId, status, date == null ? time.today() : date);
+	}
+
+	@RequiresModule(ModuleKey.KITCHEN)
+	@PreAuthorize("hasAnyAuthority('kitchen.view', 'pos.sell')")
+	@GetMapping("/kitchen/tickets/{id}")
+	com.selectcode.pos.sales.app.KitchenService.TicketView kitchenTicket(@PathVariable long id) {
+		return kitchen.get(id);
+	}
+
+	@RequiresModule(ModuleKey.KITCHEN)
+	@PreAuthorize("hasAnyAuthority('kitchen.view', 'pos.sell')")
+	@PostMapping("/kitchen/tickets/{id}/status")
+	com.selectcode.pos.sales.app.KitchenService.TicketView moveKitchenTicket(@PathVariable long id,
+			@RequestBody com.selectcode.pos.sales.app.KitchenService.StatusInput in) {
+		return kitchen.move(id, in);
 	}
 
 	// ---- deliveries and challans

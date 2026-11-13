@@ -1,7 +1,7 @@
 # SelectCode POS
 
 Multi-shop inventory and point-of-sale platform. The super admin creates shops for clients and picks each shop's
-type (mobile shop, super store, medical store and 7 more), which decides the features it gets.
+type (mobile shop, super store, medical store, fast food and 7 more), which decides the features it gets.
 
 ## Folders
 
@@ -16,7 +16,7 @@ inventory-management-system/
 │   │   ├── stock/           stock movements, counts, transfers, alerts
 │   │   ├── purchasing/      suppliers, purchase orders, goods received
 │   │   ├── sales/           till, sales, returns, offers, loyalty, repairs,
-│   │   │                    installments, prescriptions, deliveries
+│   │   │                    installments, prescriptions, deliveries, kitchen
 │   │   ├── customers/       customers and their accounts
 │   │   ├── cash/            expenses, daily cash, profit and loss
 │   │   ├── reports/         reports, dashboard, exports
@@ -41,7 +41,7 @@ inventory-management-system/
 
 ## Run on this PC
 
-**Backend** (no database to install; it starts its own PostgreSQL and five demo shops):
+**Backend** (no database to install; it starts its own PostgreSQL and six demo shops):
 
 ```bash
 cd backend
@@ -57,7 +57,8 @@ npm run dev
 ```
 
 - Shops (user `owner`, password printed by the backend): http://demo-mobile.localhost:3000, http://demo-mart.localhost:3000,
-  http://demo-pharmacy.localhost:3000, http://demo-electronics.localhost:3000, http://demo-hardware.localhost:3000
+  http://demo-pharmacy.localhost:3000, http://demo-electronics.localhost:3000, http://demo-hardware.localhost:3000,
+  http://demo-fastfood.localhost:3000
 - Super admin portal: http://admin.localhost:3000 (TOTP secret printed by the backend; add it to an authenticator app)
 
 `*.localhost` works in Chrome, Edge and Firefox with no hosts-file changes.
@@ -75,5 +76,5 @@ npm run build && npm run e2e                    # browser tests (needs the backe
 
 ## Status
 
-Stages 1–4 and 4b (all modules of the 10 shop types) are built and tested; a QA and security pass is done. Next is
+Stages 1–4, 4b (all modules of the 10 shop types) and 4c (fast food) are built and tested; a QA and security pass is done. Next is
 Stage 5, deploying to staging. Build order and status: [docs/planning/IMPLEMENTATION-STAGES.md](docs/planning/IMPLEMENTATION-STAGES.md).

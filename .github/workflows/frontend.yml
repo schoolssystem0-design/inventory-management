@@ -51,7 +51,9 @@ jobs:
         run: |
           ./mvnw -B -q test-compile
           nohup ./mvnw -B spring-boot:test-run "-Dspring-boot.run.main-class=com.selectcode.pos.LocalDevApplication" > api.log 2>&1 &
-          for i in $(seq 1 90); do curl -sf http://localhost:8080/actuator/health && break; sleep 2; done
+          # Health answers before the demo shops are seeded; wait for the ready line printed after seeding.
+          for i in $(seq 1 180); do grep -q "Local API ready" api.log && break; sleep 2; done
+          grep -q "Local API ready" api.log || { tail -50 api.log; exit 1; }
       - working-directory: frontend
         run: |
           npm ci

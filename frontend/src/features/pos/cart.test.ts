@@ -198,3 +198,19 @@ describe("offers on the bill (same case as the server's Phase2ModulesIT)", () =>
     expect(body.prescription).toEqual({ patientName: "A", doctorName: "Dr B" });
   });
 });
+
+describe("fast food orders", () => {
+  const burger: CartProduct = { id: 9, name: "Zinger burger", sku: "Z1", kind: "RECIPE", price: "550.00", decimals: false, unitName: "piece", units: [] };
+
+  it("the sale body carries the order type, the table only for dine-in, and kitchen notes", () => {
+    let c = cart((c) => addProduct(c, burger, null, "2"));
+    c = replaceLine(c, c.lines[0].key, { note: " No onions " });
+    const dineIn = saleBody({ ...c, orderType: "DINE_IN", tableNo: "5" }, [{ method: "CASH", amount: "1100" }], 1);
+    expect(dineIn.orderType).toBe("DINE_IN");
+    expect(dineIn.tableNo).toBe("5");
+    expect(dineIn.lines[0].note).toBe("No onions");
+    const takeaway = saleBody({ ...c, orderType: "TAKEAWAY", tableNo: "5" }, [{ method: "CASH", amount: "1100" }], 1);
+    expect(takeaway.tableNo).toBeNull();
+    expect(totals(c, "NONE", "0").total).toBe("1100.00");
+  });
+});

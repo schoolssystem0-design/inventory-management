@@ -61,6 +61,8 @@ export type CartLine = {
   batchId: number | null;
   batchLabel?: string | null;
   serials: string[];
+  /** For the kitchen, e.g. "no onions" (fast food). */
+  note?: string;
 };
 
 export type Payment = { method: string; amount: string; reference?: string };
@@ -76,6 +78,9 @@ export type Cart = {
   /** A coupon checked with the server: its offer applies while it is on the bill. */
   coupon?: { code: string; offerId: number; name: string } | null;
   prescription?: PrescriptionForm | null;
+  /** Fast food: DINE_IN (with a table), TAKEAWAY or DELIVERY. */
+  orderType?: string | null;
+  tableNo?: string | null;
 };
 
 export const EMPTY_CART: Cart = { lines: [], billDiscount: "", customer: null, quick: null, note: "", coupon: null, prescription: null };
@@ -301,6 +306,8 @@ export function saleBody(cart: Cart, payments: Payment[], tillSessionId: number 
     note: cart.note || null,
     couponCode: cart.coupon?.code ?? null,
     prescription: cart.prescription ?? null,
+    orderType: cart.orderType ?? null,
+    tableNo: cart.orderType === "DINE_IN" ? cart.tableNo || null : null,
     billDiscount: bill.amount ?? null,
     billDiscountPercent: bill.percent ?? null,
     lines: cart.lines.map((l) => {
@@ -314,6 +321,7 @@ export function saleBody(cart: Cart, payments: Payment[], tillSessionId: number 
         discountPercent: d.percent ?? null,
         batchId: l.batchId,
         serials: l.product.kind === "SERIAL" ? l.serials : null,
+        note: l.note?.trim() || null,
       };
     }),
     payments: payments

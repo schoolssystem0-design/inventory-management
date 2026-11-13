@@ -11,7 +11,7 @@ import { Empty, Panel, Skeleton, Table, Td, Th } from "@/components/ui/layout";
 import { api, ApiError, errorMessage, type Schemas } from "@/lib/api/client";
 import { money, qty } from "@/lib/format";
 import { addMoney, isQty, lineAmount, ZERO } from "@/lib/money";
-import { P, ShopLink, useCan } from "@/lib/shop-context";
+import { P, ShopLink, useCan, useFeature } from "@/lib/shop-context";
 
 const words = (s: string) => s.split(/[,\n]+/).map((x) => x.trim()).filter(Boolean);
 
@@ -128,8 +128,13 @@ export function VariantGridPanel({ productId }: { productId: number }) {
 type Item = { productId: number; name: string; sku: string; qty: string; price: string };
 
 /** Bundle / set (CAT-05): items sold together at one price; stock comes off each item. */
-export function BundlePanel({ productId }: { productId: number }) {
+/**
+ * The items of a bundle or deal, or (with `recipe`) the ingredients of a menu item and the amount of each per
+ * serving; each sale takes them out of stock.
+ */
+export function BundlePanel({ productId, recipe = false }: { productId: number; recipe?: boolean }) {
   const can = useCan();
+  const feature = useFeature();
   const client = useQueryClient();
   const bundle = useQuery({ queryKey: ["bundle", productId], queryFn: () => api<Schemas["BundleView"]>(`/products/${productId}/bundle`) });
   const [items, setItems] = React.useState<Item[] | null>(null);
@@ -139,7 +144,7 @@ export function BundlePanel({ productId }: { productId: number }) {
     onSuccess: (b) => {
       client.setQueryData(["bundle", productId], b);
       setItems(null);
-      toast.success("Bundle saved");
+      toast.success(recipe ? "Recipe saved" : "Bundle saved");
     },
     onError: (e) => toast.error(errorMessage(e)),
   });
@@ -148,8 +153,14 @@ export function BundlePanel({ productId }: { productId: number }) {
   const edit = can(P.CATALOG_MANAGE);
   return (
     <Panel
-      title="Items in this bundle"
-      description={bundle.data ? `Sold for ${money(bundle.data.price)}; items bought separately cost ${money(total)}.` : undefined}
+      title={recipe ? "Recipe (per serving)" : "Items in this bundle"}
+      description={
+        recipe
+          ? "Each one sold takes these ingredients out of stock. Amounts are in each ingredient's unit (e.g. 0.15 kg)."
+          : bundle.data
+            ? `Sold for ${money(bundle.data.price)}; items bought separately cost ${money(total)}.`
+            : undefined
+      }
       actions={
         edit &&
         items && (
@@ -162,8 +173,8 @@ export function BundlePanel({ productId }: { productId: number }) {
       {edit && (
         <div className="mb-4">
           <ProductPicker
-            kinds={["STANDARD", "BATCH"]}
-            placeholder="Add an item to the bundle"
+            kinds={recipe ? ["STANDARD"] : feature("recipes") ? ["STANDARD", "BATCH", "RECIPE"] : ["STANDARD", "BATCH"]}
+            placeholder={recipe ? "Add an ingredient" : "Add an item to the bundle"}
             onPick={(p) => {
               if (p.id === productId || list.some((i) => i.productId === p.id)) return;
               setItems([...list, { productId: p.id, name: p.name, sku: p.sku, qty: "1", price: p.price }]);
@@ -172,14 +183,14 @@ export function BundlePanel({ productId }: { productId: number }) {
         </div>
       )}
       {list.length === 0 ? (
-        <Empty title="No items yet" />
+        <Empty title={recipe ? "No ingredients yet" : "No items yet"} description={recipe ? "A menu item cannot be sold until it has its recipe." : undefined} />
       ) : (
         <Table className="min-w-0">
           <thead>
             <tr>
               <Th>Item</Th>
-              <Th align="right">Qty</Th>
-              <Th align="right">Price each</Th>
+              <Th align="right">{recipe ? "Amount" : "Qty"}</Th>
+              {!recipe && <Th align="right">Price each</Th>}
               <Th />
             </tr>
           </thead>
@@ -202,7 +213,7 @@ export function BundlePanel({ productId }: { productId: number }) {
                     qty(i.qty)
                   )}
                 </Td>
-                <Td align="right">{money(i.price, false)}</Td>
+                {!recipe && <Td align="right">{money(i.price, false)}</Td>}
                 <Td>
                   {edit && (
                     <button className="text-faint hover:text-bad" onClick={() => setItems(list.filter((x) => x.productId !== i.productId))} aria-label={`Remove ${i.name}`}>

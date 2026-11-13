@@ -26,7 +26,8 @@ public class ProductCatalog {
 			BigDecimal taxRate, boolean active, int warrantyDays, BigDecimal reorderLevel, Long supplierId) {
 
 		public boolean tracksStock() {
-			return !"SERVICE".equals(kind) && !"BUNDLE".equals(kind) && !"VARIANT_PARENT".equals(kind);
+			return !"SERVICE".equals(kind) && !"BUNDLE".equals(kind) && !"VARIANT_PARENT".equals(kind)
+					&& !"RECIPE".equals(kind);
 		}
 
 		public boolean serial() {

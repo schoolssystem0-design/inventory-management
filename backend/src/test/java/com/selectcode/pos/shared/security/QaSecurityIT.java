@@ -44,10 +44,10 @@ class QaSecurityIT extends IntegrationTest {
 			Map.entry("bundles", true), Map.entry("part_numbers", true), Map.entry("sms", true),
 			Map.entry("repairs", true), Map.entry("installments", true), Map.entry("prescriptions", true),
 			Map.entry("scale_barcodes", true), Map.entry("promotions", true), Map.entry("loyalty", true),
-			Map.entry("delivery", true));
+			Map.entry("delivery", true), Map.entry("recipes", true), Map.entry("kitchen", true));
 
 	static final List<String> ROLES = List.of("PARTNER", "MANAGER", "CASHIER", "SALESMAN", "STOCK_KEEPER", "PURCHASER",
-			"ACCOUNTANT", "PHARMACIST", "TECHNICIAN");
+			"ACCOUNTANT", "PHARMACIST", "TECHNICIAN", "KITCHEN", "RIDER");
 
 	@Autowired
 	@Qualifier("requestMappingHandlerMapping")
@@ -131,7 +131,9 @@ class QaSecurityIT extends IntegrationTest {
 					"select unnest(permissions) from role where shop_id = ? and system_key = ?", String.class, shop.id(),
 					role));
 			for (Rule r : rules) {
-				String url = r.path().replaceAll("\\{[a-zA-Z]+}", "1");
+				// The scanner lookup needs its code before access is checked; any code will do.
+				String url = r.path().replaceAll("\\{[a-zA-Z]+}", "1")
+						+ (r.path().endsWith("/products/lookup") ? "?code=x" : "");
 				boolean ok = allowed(r, held);
 				if (!ok) {
 					MvcResult res = call(user, r.method(), url);

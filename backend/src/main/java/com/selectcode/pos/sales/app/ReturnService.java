@@ -112,10 +112,14 @@ public class ReturnService {
 
 	private final PrescriptionService prescriptions;
 
+	private final KitchenService kitchen;
+
 	ReturnService(JdbcTemplate jdbc, StockService stock, ProductCatalog catalog, CustomerLedger ledger,
 			TillService tills, SalesService sales, SaleQueries queries, BranchAccess branches,
 			ShopConfigService numbering, ApprovalService approvals, Idempotency idempotency, AuditService audit,
-			ShopTime time, LoyaltyService loyalty, PromotionService promotions, PrescriptionService prescriptions) {
+			ShopTime time, LoyaltyService loyalty, PromotionService promotions, PrescriptionService prescriptions,
+			KitchenService kitchen) {
+		this.kitchen = kitchen;
 		this.loyalty = loyalty;
 		this.promotions = promotions;
 		this.prescriptions = prescriptions;
@@ -351,6 +355,11 @@ public class ReturnService {
 				stock.markSerialReturned(serialId, p.restock(), p.condition());
 			}
 			String kind = catalog.require(productId).kind();
+			if ("RECIPE".equals(kind)) {
+				// Food that was made cannot go back on the shelf: its cost is a loss.
+				costDamaged = costDamaged.add(lineCost);
+				continue;
+			}
 			if (!p.restock()) {
 				costDamaged = costDamaged.add(lineCost);
 				continue;
@@ -358,6 +367,9 @@ public class ReturnService {
 			costRestocked = costRestocked.add(lineCost);
 			if ("BUNDLE".equals(kind)) {
 				for (BundlePart item : catalog.bundle(productId)) {
+					if (!catalog.require(item.productId()).tracksStock()) {
+						continue; // menu items and services in a deal do not come back into stock
+					}
 					BigDecimal qty = Amounts.qty(item.qty().multiply(p.baseQty()));
 					BigDecimal cost = stock.averageCost(item.productId());
 					moves.add(new Move(item.productId(), branchId, null, null, qty, cost, "Return " + number));
@@ -472,6 +484,7 @@ public class ReturnService {
 		}
 		loyalty.reverseSale(saleId, number, time.today());
 		promotions.releaseUse(saleId);
+		kitchen.cancelForSale(saleId);
 		prescriptions.registerCancel(saleId);
 		audit.record("SALE_CANCELLED", "sale", saleId, null, Map.of("number", number, "reason", reason.trim()));
 		return queries.get(saleId);

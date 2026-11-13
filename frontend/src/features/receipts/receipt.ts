@@ -105,6 +105,7 @@ ${r.ntn ? `<div class="c">NTN ${esc(r.ntn)}${r.strn ? ` · STRN ${esc(r.strn)}` 
 ${r.header ? `<div class="c" style="margin-top:3px">${esc(r.header)}</div>` : ""}
 <hr>
 <table>
+${s.tokenNo ? `<div class="c" style="font-size:22px;font-weight:700">Token #${s.tokenNo}</div><div class="c">${esc(s.orderType === "DINE_IN" ? `Dine-in · Table ${s.tableNo ?? ""}` : s.orderType === "DELIVERY" ? "Delivery" : "Takeaway")}</div>` : ""}
 ${row(L("Invoice", "invoice"), esc(s.number))}
 ${row("Date", esc(dateTime(s.at)))}
 ${row(L("Cashier", "cashier"), esc(s.cashierName))}

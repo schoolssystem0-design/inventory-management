@@ -63,6 +63,8 @@ Core modules (`core.*`) are always on and cannot be switched off.
 
 **Built early (Stage 4b, 2026-11-13):** `repairs`, `installments`, `prescriptions`, `scale_barcodes`, `promotions` (offers and coupons), `loyalty` and `delivery` (deliveries and challans) are built ahead of Phase 2, so every default module of the 10 shop types works. Rules: docs/planning/IMPLEMENTATION-STAGES.md, Stage 4b.
 
+**Fast food / restaurant (Stage 4c, 2026-11-14):** an 11th type, `fast_food`. Defaults: `recipes` (menu items made from recipes), `kitchen` (order type, tokens, kitchen screen), `bundles` (deals), `promotions`, `multi_till`, `delivery`; offered: `loyalty`, `sms`, `weighed`, `pack_units`, `batches`, `quotations`. Extra roles: Kitchen staff, Rider. On the Starter plan only the first-release modules apply (recipes, kitchen, bundles, multi_till).
+
 ## 3. Defaults per shop type
 
 **D** = on at creation. **O** = offered (owner or super admin switches it on). Blank = not offered (super admin can still force it). Core modules are always on and not listed.

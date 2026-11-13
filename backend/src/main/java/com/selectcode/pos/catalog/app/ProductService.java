@@ -673,6 +673,7 @@ public class ProductService {
 			case BATCH -> features.require(ModuleKey.BATCHES);
 			case VARIANT_PARENT -> features.require(ModuleKey.VARIANTS);
 			case BUNDLE -> features.require(ModuleKey.BUNDLES);
+			case RECIPE -> features.require(ModuleKey.RECIPES);
 			default -> {
 			}
 		}

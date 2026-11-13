@@ -22,7 +22,7 @@ import java.time.Instant;
 public class Product extends ShopScopedEntity {
 
 	public enum Kind {
-		STANDARD, SERIAL, BATCH, VARIANT_PARENT, BUNDLE, SERVICE
+		STANDARD, SERIAL, BATCH, VARIANT_PARENT, BUNDLE, SERVICE, RECIPE
 	}
 
 	@Id

@@ -131,6 +131,7 @@ export function ProductForm({ product, onSaved }: { product?: Product; onSaved: 
     { value: "BATCH", show: has("batches") },
     { value: "VARIANT_PARENT", show: has("variants") },
     { value: "BUNDLE", show: has("bundles") },
+    { value: "RECIPE", show: has("recipes") },
     { value: "SERVICE", show: true },
   ].filter((k) => k.show || k.value === s.kind);
 

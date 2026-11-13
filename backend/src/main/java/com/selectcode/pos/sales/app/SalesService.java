@@ -63,7 +63,13 @@ public class SalesService {
 	 * @param batchId sell from this batch instead of the earliest expiry (MED-03 override)
 	 */
 	public record SaleLineInput(Long productId, Long unitId, String qty, String price, String discount,
-			String discountPercent, Long batchId, List<String> serials) {
+			String discountPercent, Long batchId, List<String> serials, String note) {
+
+		/** @param note for the kitchen, e.g. "no onions" (fast food) */
+		public SaleLineInput(Long productId, Long unitId, String qty, String price, String discount,
+				String discountPercent, Long batchId, List<String> serials) {
+			this(productId, unitId, qty, price, discount, discountPercent, batchId, serials, null);
+		}
 	}
 
 	/**
@@ -84,7 +90,16 @@ public class SalesService {
 	public record SaleInput(Long tillSessionId, Long customerId, QuickCustomer newCustomer, String customerName,
 			String customerPhone, Long salesmanId, List<SaleLineInput> lines, String billDiscount,
 			String billDiscountPercent, List<PaymentInput> payments, String note, Long quotationId, String couponCode,
-			PrescriptionService.PrescriptionInput prescription) {
+			PrescriptionService.PrescriptionInput prescription, String orderType, String tableNo) {
+
+		/** @param orderType DINE_IN, TAKEAWAY or DELIVERY (fast food); {@code tableNo} for dine-in */
+		public SaleInput(Long tillSessionId, Long customerId, QuickCustomer newCustomer, String customerName,
+				String customerPhone, Long salesmanId, List<SaleLineInput> lines, String billDiscount,
+				String billDiscountPercent, List<PaymentInput> payments, String note, Long quotationId,
+				String couponCode, PrescriptionService.PrescriptionInput prescription) {
+			this(tillSessionId, customerId, newCustomer, customerName, customerPhone, salesmanId, lines, billDiscount,
+					billDiscountPercent, payments, note, quotationId, couponCode, prescription, null, null);
+		}
 	}
 
 	/** Internal payment line (exchanges pay with the returned goods' value). */
@@ -123,10 +138,14 @@ public class SalesService {
 
 	private final PrescriptionService prescriptions;
 
+	private final KitchenService kitchen;
+
 	SalesService(JdbcTemplate jdbc, StockService stock, ProductCatalog catalog, CustomerLedger ledger,
 			CustomerService customers, TillService tills, ShopConfigService numbering, ApprovalService approvals,
 			Idempotency idempotency, ShopFeatures features, AuditService audit, ShopTime time, SaleQueries queries,
-			PromotionService promotions, LoyaltyService loyalty, PrescriptionService prescriptions) {
+			PromotionService promotions, LoyaltyService loyalty, PrescriptionService prescriptions,
+			KitchenService kitchen) {
+		this.kitchen = kitchen;
 		this.promotions = promotions;
 		this.loyalty = loyalty;
 		this.prescriptions = prescriptions;
@@ -263,7 +282,9 @@ public class SalesService {
 				throw ApiException.field(f + ".discount", "too_large", "Discount is more than the line amount");
 			}
 			BigDecimal rate = product.taxRate() != null ? product.taxRate() : shopTax;
-			lines.add(new Line(i, product, unit, qty, price, listPrice, gross, discount, rate, serials, input.batchId()));
+			Line line = new Line(i, product, unit, qty, price, listPrice, gross, discount, rate, serials, input.batchId());
+			line.note = trim(input.note(), 200);
+			lines.add(line);
 		}
 
 		BigDecimal subtotal = lines.stream().map(Line::gross).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -444,14 +465,13 @@ public class SalesService {
 					}
 				}
 			}
-			else if ("BUNDLE".equals(p.kind())) {
-				List<BundlePart> items = catalog.bundle(p.id());
-				if (items.isEmpty()) {
-					throw ApiException.rule("empty_bundle", p.name() + " has no items in it");
-				}
+			else if ("BUNDLE".equals(p.kind()) || "RECIPE".equals(p.kind())) {
+				// A deal or menu item: the stock items it is made of leave stock (a deal's menu items are made of
+				// their ingredients).
+				List<BundlePart> items = stockItems(p, baseQty);
 				for (BundlePart item : items) {
 					BigDecimal cost = stock.averageCost(item.productId());
-					l.bundle.add(new Part(item.productId(), null, null, Amounts.qty(item.qty().multiply(baseQty)), cost));
+					l.bundle.add(new Part(item.productId(), null, null, item.qty(), cost));
 				}
 				l.parts.add(new Part(p.id(), null, null, baseQty, null));
 			}
@@ -459,6 +479,9 @@ public class SalesService {
 				l.parts.add(new Part(p.id(), null, null, baseQty, "SERVICE".equals(p.kind()) ? BigDecimal.ZERO : p.costAvg()));
 			}
 		}
+
+		// ---- order type, table and token (fast food)
+		KitchenService.Order order = kitchen.order(in.orderType(), in.tableNo(), branchId, today);
 
 		// ---- header
 		BigDecimal costTotal = lines.stream().map(Line::cost).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -469,8 +492,9 @@ public class SalesService {
 				insert into sale (shop_id, number, branch_id, till_session_id, customer_id, customer_name, customer_phone,
 				                  salesman_id, user_id, actor_name, subtotal, line_discount, bill_discount, tax, total, paid,
 				                  change_given, cost_total, approved_by, approval_note, quotation_id, exchange_of_return_id,
-				                  note, business_date, promo_discount, bill_promotion_id, coupon_code)
-				values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id""",
+				                  note, business_date, promo_discount, bill_promotion_id, coupon_code, order_type, table_no,
+				                  token_no)
+				values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id""",
 				Long.class,
 				TenantContext.requireShopId(), number, branchId, sessionId, account == null ? null : account.id(),
 				walkInName, walkInPhone, in.salesmanId(), TillService.userId(), CurrentActor.name(),
@@ -478,7 +502,8 @@ public class SalesService {
 				Amounts.money(total), Amounts.money(applied), Amounts.money(change), Amounts.money(costTotal), approvedBy,
 				reasons.isEmpty() ? null : trim(String.join("; ", reasons), 300), in.quotationId(), exchangeOfReturnId,
 				trim(in.note(), 500), Date.valueOf(today), Amounts.money(promoTotal), billOffer.offerId(),
-				in.couponCode() == null || in.couponCode().isBlank() ? null : trim(in.couponCode().toUpperCase(), 30));
+				in.couponCode() == null || in.couponCode().isBlank() ? null : trim(in.couponCode().toUpperCase(), 30),
+				order.type(), order.table(), order.token());
 		DocRef doc = new DocRef("SALE", saleId, number);
 
 		// ---- lines and stock
@@ -522,7 +547,7 @@ public class SalesService {
 				insertLine(saleId, lineNo++, l, part.batchId(), null, l.qty(), l.baseQty(), l.discount(), l.share,
 						l.net, l.tax, l.total, l.costPerBase());
 			}
-			if ("BUNDLE".equals(l.product().kind())) {
+			if ("BUNDLE".equals(l.product().kind()) || "RECIPE".equals(l.product().kind())) {
 				for (Part item : l.bundle) {
 					moves.add(new Move(item.productId(), branchId, null, null, item.qty().negate(), item.unitCost(),
 							l.product().name()));
@@ -596,6 +621,9 @@ public class SalesService {
 			jdbc.update("update sale set prescription_id = ? where id = ?", rx, saleId);
 			prescriptions.registerSale(saleId, schedules.products("CONTROLLED"), rx, pharmacistId);
 		}
+		if (lines.stream().anyMatch(l -> "RECIPE".equals(l.product().kind()) || "BUNDLE".equals(l.product().kind()))) {
+			kitchen.ticket(saleId, branchId, order, today);
+		}
 		audit.record("SALE_POSTED", "sale", saleId, null,
 				Map.of("number", number, "total", total.toPlainString(), "due", due.toPlainString()));
 		return saleId;
@@ -651,6 +679,35 @@ public class SalesService {
 		return result.bill();
 	}
 
+	/**
+	 * The stock items a deal (BUNDLE) or menu item (RECIPE) is made of, for {@code qty} of it: a deal's menu items are
+	 * made of their ingredients; services in a deal take no stock. Quantities are in each item's base unit.
+	 */
+	List<BundlePart> stockItems(ProductRef p, BigDecimal qty) {
+		List<BundlePart> items = catalog.bundle(p.id());
+		if (items.isEmpty()) {
+			throw ApiException.rule("empty_bundle", "RECIPE".equals(p.kind()) ? p.name() + " has no recipe yet"
+					: p.name() + " has no items in it");
+		}
+		Map<Long, ProductRef> refs = catalog.find(items.stream().map(BundlePart::productId).toList());
+		Map<Long, BigDecimal> out = new LinkedHashMap<>();
+		for (BundlePart item : items) {
+			ProductRef ref = refs.get(item.productId());
+			BigDecimal need = item.qty().multiply(qty);
+			if (ref != null && "RECIPE".equals(ref.kind()) && "BUNDLE".equals(p.kind())) {
+				for (BundlePart ingredient : stockItems(ref, need)) {
+					out.merge(ingredient.productId(), ingredient.qty(), BigDecimal::add);
+				}
+			}
+			else if (ref == null || ref.tracksStock()) {
+				out.merge(item.productId(), need, BigDecimal::add);
+			}
+		}
+		List<BundlePart> list = new ArrayList<>();
+		out.forEach((id, q) -> list.add(new BundlePart(id, Amounts.qty(q))));
+		return list;
+	}
+
 	/** Cost per base unit as known before stock is locked (serial cost, else the average cost). */
 	private BigDecimal indicativeCost(Line l) {
 		ProductRef p = l.product();
@@ -662,9 +719,9 @@ public class SalesService {
 					: costs.stream().reduce(BigDecimal.ZERO, BigDecimal::add)
 						.divide(BigDecimal.valueOf(costs.size()), 2, RoundingMode.HALF_UP);
 		}
-		if ("BUNDLE".equals(p.kind())) {
+		if ("BUNDLE".equals(p.kind()) || "RECIPE".equals(p.kind())) {
 			BigDecimal sum = BigDecimal.ZERO;
-			for (BundlePart part : catalog.bundle(p.id())) {
+			for (BundlePart part : stockItems(p, BigDecimal.ONE)) {
 				sum = sum.add(part.qty().multiply(stock.averageCost(part.productId())));
 			}
 			return Amounts.money(sum);
@@ -715,14 +772,15 @@ public class SalesService {
 		jdbc.update("""
 				insert into sale_line (shop_id, sale_id, line_no, product_id, product_name, unit_id, unit_name, unit_factor,
 				                       batch_id, serial_id, qty, base_qty, price, list_price, discount, bill_share, net,
-				                       tax_rate, tax, total, unit_cost, cost_total, promotion_id, promo_discount)
-				values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", TenantContext.requireShopId(),
+				                       tax_rate, tax, total, unit_cost, cost_total, promotion_id, promo_discount, note)
+				values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", TenantContext.requireShopId(),
 				saleId, lineNo, l.product().id(), l.product().name(), l.unit().unitId(), l.unit().name(),
 				l.unit().factor(), batchId, serialId, Amounts.qty(qty), Amounts.qty(baseQty), l.price(), l.listPrice(),
 				Amounts.money(discount), Amounts.money(billShare), Amounts.money(net), l.rate(), Amounts.money(tax),
 				Amounts.money(total), Amounts.money(cost), Amounts.money(cost.multiply(baseQty)), l.promotionId,
 				l.baseQty().signum() == 0 ? BigDecimal.ZERO
-						: Amounts.money(l.promo.multiply(baseQty).divide(l.baseQty(), 2, RoundingMode.HALF_UP)));
+						: Amounts.money(l.promo.multiply(baseQty).divide(l.baseQty(), 2, RoundingMode.HALF_UP)),
+				l.note);
 	}
 
 	static String trim(String value, int max) {
@@ -762,6 +820,9 @@ public class SalesService {
 		Long promotionId;
 
 		BigDecimal promo = BigDecimal.ZERO;
+
+		/** For the kitchen. */
+		String note;
 
 		private final List<String> serials;
 

@@ -123,6 +123,9 @@ public final class Permissions {
 
 	public static final String DELIVERY_MANAGE = "delivery.manage";
 
+	// ---- Fast food (Stage 4c)
+	public static final String KITCHEN_VIEW = "kitchen.view";
+
 	public static final String SUBSCRIPTION_VIEW = "subscription.view";
 
 	public static final String SUPPORT_APPROVE = "support.approve";
@@ -158,7 +161,8 @@ public final class Permissions {
 				"Buy used items", WARRANTY_MANAGE, "Warranty claims", REPAIRS_MANAGE, "Repair jobs",
 				PRESCRIPTIONS_APPROVE, "Approve prescription and controlled medicines", PROMOTIONS_MANAGE,
 				"Offers and coupons", LOYALTY_MANAGE, "Change loyalty points", INSTALLMENTS_MANAGE,
-				"Installment plans", DELIVERY_MANAGE, "Deliveries and challans"));
+				"Installment plans", DELIVERY_MANAGE, "Deliveries and challans", KITCHEN_VIEW,
+				"Kitchen screen and order status"));
 		CATALOGUE = java.util.Collections.unmodifiableMap(c);
 		CODES = c.values().stream().flatMap(m -> m.keySet().stream()).collect(Collectors.toUnmodifiableSet());
 	}

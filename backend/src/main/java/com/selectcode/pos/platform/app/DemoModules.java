@@ -69,9 +69,12 @@ class DemoModules {
 
 	private final DeliveryService deliveries;
 
+	private final com.selectcode.pos.sales.app.KitchenService kitchen;
+
 	DemoModules(JdbcTemplate jdbc, ShopFeatures features, SalesService sales, TillService tills,
 			PromotionService promotions, LoyaltyService loyalty, RepairService repairs, InstallmentService installments,
-			DeliveryService deliveries) {
+			DeliveryService deliveries, com.selectcode.pos.sales.app.KitchenService kitchen) {
+		this.kitchen = kitchen;
 		this.jdbc = jdbc;
 		this.features = features;
 		this.sales = sales;
@@ -172,7 +175,39 @@ class DemoModules {
 		if (features.isOn(ModuleKey.DELIVERY) && !sellable.isEmpty() && customerIds.size() >= 3) {
 			quietly("deliveries", () -> deliveries(session, branch, sellable, customerIds));
 		}
+		if (features.isOn(ModuleKey.KITCHEN)) {
+			quietly("kitchen orders", () -> kitchenOrders(session, customerIds));
+		}
 		tills.close(session, new CloseTill(tills.expectedCash(session).toPlainString(), Map.of(), "Demo extras"));
+	}
+
+	/** Earlier days' orders were served; today a few orders are on the kitchen screen at each stage. */
+	private void kitchenOrders(long session, List<Long> customerIds) {
+		jdbc.update("""
+				update kitchen_ticket set status = 'SERVED', started_at = created_at, ready_at = created_at,
+				       served_at = created_at where business_date < ?""", java.sql.Date.valueOf(LocalDate.now(ShopTime.ZONE)));
+		List<Long> menu = jdbc.queryForList("select id from product where kind = 'RECIPE' and active order by id", Long.class);
+		List<Long> deals = jdbc.queryForList("select id from product where kind = 'BUNDLE' and active order by id", Long.class);
+		if (menu.size() < 3 || deals.isEmpty()) {
+			return;
+		}
+		Object[][] orders = { { "DINE_IN", "4", menu.get(0), "No onions", "READY" },
+				{ "TAKEAWAY", null, deals.get(0), "Extra spicy", "PREPARING" }, { "DINE_IN", "7", menu.get(1), null, "NEW" },
+				{ "DELIVERY", null, menu.get(2), "Sauce on the side", "NEW" } };
+		for (Object[] o : orders) {
+			long productId = (Long) o[2];
+			BigDecimal price = jdbc.queryForObject("select price from product where id = ?", BigDecimal.class, productId);
+			var sale = sales.post(new SaleInput(session, "DELIVERY".equals(o[0]) && !customerIds.isEmpty()
+					? customerIds.get(0) : null, null, null, null, null,
+					List.of(new SaleLineInput(productId, null, "1", null, null, null, null, null, (String) o[3])), null,
+					null, List.of(new PaymentInput("CASH", price.toPlainString(), null)), "Demo order", null, null, null,
+					(String) o[0], (String) o[1]), UUID.randomUUID().toString(), null);
+			Long ticket = jdbc.queryForList("select id from kitchen_ticket where sale_id = ?", Long.class, sale.id())
+				.stream().findFirst().orElse(null);
+			if (ticket != null && !"NEW".equals(o[4])) {
+				kitchen.move(ticket, new com.selectcode.pos.sales.app.KitchenService.StatusInput((String) o[4]));
+			}
+		}
 	}
 
 	private void repairs(long session, List<Long> sellable, List<Long> customerIds) {

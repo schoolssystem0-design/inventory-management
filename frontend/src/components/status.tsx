@@ -47,6 +47,9 @@ const TONES: Record<string, "good" | "warn" | "bad" | "info" | "aqua" | "neutral
   DUE: "warn",
   LATE: "bad",
   PART_PAID: "warn",
+  NEW: "aqua",
+  PREPARING: "info",
+  SERVED: "neutral",
 };
 
 /** A document or item status as a coloured badge. */

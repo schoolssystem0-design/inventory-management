@@ -219,18 +219,22 @@ public class VariantService {
 
 	// ------------------------------------------------------------------ bundles
 
-	/** Sets the items of a bundle (kind BUNDLE), e.g. a class's book set. */
+	/**
+	 * Sets the items of a bundle (kind BUNDLE), e.g. a class's book set or a fast-food deal, or the recipe of a menu
+	 * item (kind RECIPE): its ingredients and the amount of each per serving, in the ingredient's base unit.
+	 */
 	@Transactional
 	public BundleView setBundle(long bundleId, List<BundleItemInput> items) {
 		Map<String, Object> bundle = jdbc.queryForList("select * from product where id = ?", bundleId)
 			.stream()
 			.findFirst()
 			.orElseThrow(() -> ApiException.notFound("Product"));
-		if (!"BUNDLE".equals(bundle.get("kind"))) {
-			throw ApiException.rule("not_bundle", "Make the product a bundle (set) first");
+		boolean recipe = "RECIPE".equals(bundle.get("kind"));
+		if (!"BUNDLE".equals(bundle.get("kind")) && !recipe) {
+			throw ApiException.rule("not_bundle", "Make the product a bundle (set) or a menu item first");
 		}
 		if (items == null || items.isEmpty()) {
-			throw ApiException.field("items", "required", "Add the items in the set");
+			throw ApiException.field("items", "required", recipe ? "Add the ingredients" : "Add the items in the set");
 		}
 		jdbc.update("delete from bundle_item where bundle_product_id = ?", bundleId);
 		for (int i = 0; i < items.size(); i++) {
@@ -242,10 +246,16 @@ public class VariantService {
 				.stream()
 				.findFirst()
 				.orElseThrow(() -> ApiException.notFound("Product"));
-			if (List.of("BUNDLE", "VARIANT_PARENT", "SERIAL").contains(p.get("kind"))) {
-				throw ApiException.rule("bundle_item_kind", "Sets can hold normal or batch items only");
+			if (recipe && !"STANDARD".equals(p.get("kind"))) {
+				throw ApiException.rule("bundle_item_kind", "A recipe is made of ordinary stock items (ingredients)");
+			}
+			if (!recipe && List.of("BUNDLE", "VARIANT_PARENT", "SERIAL").contains(p.get("kind"))) {
+				throw ApiException.rule("bundle_item_kind", "Sets and deals hold normal, batch or menu items only");
 			}
 			BigDecimal qty = Amounts.parseQty(item.qty() == null ? "1" : item.qty(), "items[" + i + "].qty");
+			if (qty == null || qty.signum() <= 0) {
+				throw ApiException.field("items[" + i + "].qty", "invalid", "Enter an amount above zero");
+			}
 			try {
 				jdbc.update("insert into bundle_item (shop_id, bundle_product_id, item_product_id, qty) values (?, ?, ?, ?)",
 						TenantContext.requireShopId(), bundleId, item.productId(), qty);

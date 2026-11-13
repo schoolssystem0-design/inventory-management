@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -238,6 +239,63 @@ public class DemoSeeder {
 					receive(supplierIds.get(i % 5), branch, List.of(line(screw, "500", "9")));
 				}
 			}
+			case "fast_food" -> {
+				// Ingredients (stock), menu items made from them (recipes), deals and canned drinks.
+				long piece = unit("piece");
+				long kg = unit("kg");
+				long litre = unit("litre");
+				Map<String, Long> ing = new LinkedHashMap<>();
+				Object[][] ingredients = { { "Burger bun", piece, 25, "400" }, { "Chicken fillet", kg, 900, "40" },
+						{ "Beef patty", piece, 120, "200" }, { "Cheese slice", piece, 15, "500" }, { "Lettuce", kg, 200, "10" },
+						{ "Potatoes", kg, 120, "80" }, { "Cooking oil", litre, 550, "60" }, { "Pizza dough ball", piece, 60, "150" },
+						{ "Mozzarella", kg, 1800, "25" }, { "Pizza sauce", kg, 400, "15" }, { "Shawarma bread", piece, 15, "400" },
+						{ "Shawarma chicken", kg, 950, "30" }, { "Garlic sauce", kg, 500, "10" } };
+				for (int i = 0; i < ingredients.length; i++) {
+					Object[] g = ingredients[i];
+					long id = productWithUnits((String) g[0], (Integer) g[2], (Long) g[1], "STANDARD", null, null, null,
+							(Integer) g[2]);
+					ing.put((String) g[0], id);
+					receive(supplierIds.get(i % 5), branch, List.of(line(id, (String) g[3], String.valueOf(g[2]))));
+				}
+				long cola = productWithUnits("Cola can 345ml", 120, piece, "STANDARD", null, null, null, 80);
+				long water = productWithUnits("Mineral water 500ml", 70, piece, "STANDARD", null, null, null, 40);
+				receive(supplierIds.get(0), branch, List.of(line(cola, "240", "80"), line(water, "120", "40")));
+				Map<String, Long> menu = new LinkedHashMap<>();
+				Object[][] recipes = {
+						{ "Zinger burger", 550, new Object[][] { { "Burger bun", "1" }, { "Chicken fillet", "0.15" },
+								{ "Cheese slice", "1" }, { "Lettuce", "0.02" }, { "Cooking oil", "0.03" } } },
+						{ "Beef burger", 650, new Object[][] { { "Burger bun", "1" }, { "Beef patty", "1" },
+								{ "Cheese slice", "1" }, { "Lettuce", "0.02" } } },
+						{ "Regular fries", 250, new Object[][] { { "Potatoes", "0.2" }, { "Cooking oil", "0.03" } } },
+						{ "Chicken shawarma", 350, new Object[][] { { "Shawarma bread", "1" }, { "Shawarma chicken", "0.12" },
+								{ "Garlic sauce", "0.03" } } },
+						{ "Medium pizza", 1200, new Object[][] { { "Pizza dough ball", "1" }, { "Mozzarella", "0.15" },
+								{ "Pizza sauce", "0.08" } } } };
+				for (Object[] r : recipes) {
+					long id = productWithUnits((String) r[0], (Integer) r[1], piece, "RECIPE", null, null, null, 0);
+					List<BundleItemInput> items = new ArrayList<>();
+					for (Object[] g : (Object[][]) r[2]) {
+						items.add(new BundleItemInput(ing.get((String) g[0]), (String) g[1]));
+					}
+					variants.setBundle(id, items);
+					menu.put((String) r[0], id);
+					sellable.add(id);
+				}
+				long zingerDeal = product("Zinger deal (burger, fries, cola)", 850, 0, "BUNDLE", null, null, null);
+				variants.setBundle(zingerDeal, List.of(new BundleItemInput(menu.get("Zinger burger"), "1"),
+						new BundleItemInput(menu.get("Regular fries"), "1"), new BundleItemInput(cola, "1")));
+				long pizzaDeal = product("Family pizza deal (2 pizzas, 2 colas)", 2400, 0, "BUNDLE", null, null, null);
+				variants.setBundle(pizzaDeal, List.of(new BundleItemInput(menu.get("Medium pizza"), "2"),
+						new BundleItemInput(cola, "2")));
+				sellable.add(zingerDeal);
+				sellable.add(pizzaDeal);
+				sellable.add(cola);
+				sellable.add(water);
+				for (int t = 2; t <= 2; t++) {
+					jdbc.update("insert into till (shop_id, branch_id, name) values (?, ?, ?)", TenantContext.requireShopId(),
+							branch, "Counter " + t);
+				}
+			}
 			case "books" -> {
 				List<Long> books = new ArrayList<>();
 				for (int i = 0; i < 6 * size.scale; i++) {
@@ -263,14 +321,23 @@ public class DemoSeeder {
 				}
 			}
 		}
-		// Open purchase orders, one per supplier.
-		if (!sellable.isEmpty()) {
+		// Open purchase orders, one per supplier, for items bought into stock (not deals, menu items or services;
+		// a fast-food shop buys its ingredients).
+		List<Long> buyable = new ArrayList<>();
+		for (Long p : sellable) {
+			if (List.of("STANDARD", "BATCH", "SERIAL")
+				.contains(jdbc.queryForObject("select kind from product where id = ?", String.class, p))) {
+				buyable.add(p);
+			}
+		}
+		if ("fast_food".equals(type)) {
+			buyable = jdbc.queryForList("select id from product where kind = 'STANDARD' order by id", Long.class);
+		}
+		if (!buyable.isEmpty()) {
 			for (int s = 0; s < supplierIds.size(); s++) {
-				long p = sellable.get(s % sellable.size());
-				if (!"BUNDLE".equals(jdbc.queryForObject("select kind from product where id = ?", String.class, p))) {
-					orders.create(new PoInput(supplierIds.get(s), branch, LocalDate.now(ShopTime.ZONE).plusDays(5), null,
-							List.of(new PoLineInput(p, null, "10", null))));
-				}
+				long p = buyable.get(s % buyable.size());
+				orders.create(new PoInput(supplierIds.get(s), branch, LocalDate.now(ShopTime.ZONE).plusDays(5), null,
+						List.of(new PoLineInput(p, null, "10", null))));
 			}
 		}
 		// Trading history.

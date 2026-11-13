@@ -57,7 +57,8 @@ class TenantIsolationIT extends IntegrationTest {
 			Map.entry("exports", "export_job"), Map.entry("notifications", "notification"),
 			Map.entry("promotions", "promotion"), Map.entry("repairs", "repair_job"), Map.entry("parts", "repair_part"),
 			Map.entry("installment-plans", "installment_plan"), Map.entry("prescriptions", "prescription"),
-			Map.entry("deliveries", "delivery"), Map.entry("challans", "challan"));
+			Map.entry("deliveries", "delivery"), Map.entry("challans", "challan"),
+			Map.entry("tickets", "kitchen_ticket"));
 
 	/** Path variables that are not record ids (they act on the caller's own shop only). */
 	private static final List<String> NOT_IDS = List.of("/api/v1/modules/{key}", "/api/v1/public/shops/{code}",
@@ -72,7 +73,7 @@ class TenantIsolationIT extends IntegrationTest {
 			Map.entry("bundles", true), Map.entry("part_numbers", true), Map.entry("sms", true),
 			Map.entry("repairs", true), Map.entry("installments", true), Map.entry("prescriptions", true),
 			Map.entry("scale_barcodes", true), Map.entry("promotions", true), Map.entry("loyalty", true),
-			Map.entry("delivery", true));
+			Map.entry("delivery", true), Map.entry("recipes", true), Map.entry("kitchen", true));
 
 	@Autowired
 	ProductRepository products;
@@ -226,6 +227,17 @@ class TenantIsolationIT extends IntegrationTest {
 			.formatted(main, marker, marker, item)).andExpect(status().isCreated()), "$.id");
 		b.post("/api/v1/deliveries", "{\"challanId\":" + challan + ",\"note\":\"" + marker + "\"}")
 			.andExpect(status().isCreated());
+		// A fast-food order with a kitchen ticket (Stage 4c).
+		Integer unit = json(b.get("/api/v1/units"), "$[0].id");
+		Integer burger = json(b.post("/api/v1/products", """
+				{"name":"%s burger","price":"500","unitId":%d,"kind":"RECIPE"}""".formatted(marker, unit))
+			.andExpect(status().isCreated()), "$.id");
+		b.put("/api/v1/products/" + burger + "/bundle", "{\"items\":[{\"productId\":" + item + ",\"qty\":\"1\"}]}")
+			.andExpect(status().isOk());
+		b.postWithKey("/api/v1/sales", """
+				{"tillSessionId":%d,"orderType":"DINE_IN","tableNo":"%s","lines":[{"productId":%d,"qty":"1","note":"%s"}],
+				 "payments":[{"method":"CASH","amount":"500"}]}""".formatted(session, marker.substring(0, 10), burger, marker),
+				Trading.key()).andExpect(status().isCreated());
 	}
 
 	// ------------------------------------------------------------------ layers

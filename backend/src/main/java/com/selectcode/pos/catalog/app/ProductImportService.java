@@ -203,10 +203,10 @@ public class ProductImportService {
 			int[] rowNo = { 1 };
 			jdbc.query("""
 					select p.*, c.name as category, b.name as brand, u.name as unit,
-					       (select string_agg(barcode, ',' order by id) from product_barcode pb where pb.product_id = p.id) as barcodes,
-					       f.formula, f.strength, f.dosage_form, f.company as manufacturer, f.pack_size, f.schedule, f.rack,
-					       f.registration_no, pp.oem_number, array_to_string(pp.alternate_numbers, ',') as alternates,
-					       bk.isbn, bk.author, bk.publisher, bk.edition, bk.class_name
+					    (select string_agg(barcode, ',' order by id) from product_barcode pb where pb.product_id = p.id) as barcodes,
+					    f.formula, f.strength, f.dosage_form, f.company as manufacturer, f.pack_size, f.schedule, f.rack,
+					    f.registration_no, pp.oem_number, array_to_string(pp.alternate_numbers, ',') as alternates,
+					    bk.isbn, bk.author, bk.publisher, bk.edition, bk.class_name
 					from product p
 					left join category c on c.id = p.category_id
 					left join brand b on b.id = p.brand_id

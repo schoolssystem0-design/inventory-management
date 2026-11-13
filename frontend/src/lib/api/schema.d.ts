@@ -1236,6 +1236,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/kitchen/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["kitchenTickets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kitchen/tickets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["kitchenTicket"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kitchen/tickets/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["moveKitchenTicket"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/labels": {
         parameters: {
             query?: never;
@@ -6495,12 +6543,14 @@ export interface components {
             lines?: components["schemas"]["SaleLineInput"][];
             newCustomer?: components["schemas"]["QuickCustomer"];
             note?: string;
+            orderType?: string;
             payments?: components["schemas"]["PaymentInput"][];
             prescription?: components["schemas"]["PrescriptionInput"];
             /** Format: int64 */
             quotationId?: number;
             /** Format: int64 */
             salesmanId?: number;
+            tableNo?: string;
             /** Format: int64 */
             tillSessionId?: number;
         };
@@ -6509,6 +6559,7 @@ export interface components {
             batchId?: number;
             discount?: string;
             discountPercent?: string;
+            note?: string;
             price?: string;
             /** Format: int64 */
             productId?: number;
@@ -6530,6 +6581,7 @@ export interface components {
             lineNo: number;
             listPrice: string;
             net: string;
+            note: string;
             offerName: string;
             price: string;
             /** Format: int64 */
@@ -6628,6 +6680,7 @@ export interface components {
             lines: components["schemas"]["SaleLineView"][];
             note: string;
             number: string;
+            orderType: string;
             paid: string;
             payments: components["schemas"]["SalePaymentView"][];
             /** Format: int32 */
@@ -6642,9 +6695,12 @@ export interface components {
             returns: components["schemas"]["SaleReturnSummary"][];
             status: string;
             subtotal: string;
+            tableNo: string;
             tax: string;
             /** Format: int64 */
             tillSessionId: number;
+            /** Format: int32 */
+            tokenNo: number;
             total: string;
         };
         SearchHit: {
@@ -7001,6 +7057,9 @@ export interface components {
             totalCredit: string;
             totalDebit: string;
         };
+        StatusInput: {
+            status?: string;
+        };
         StatusOverride: {
             reason?: string;
             status?: string;
@@ -7223,6 +7282,34 @@ export interface components {
             acceptedVersion: string;
             currentVersion: string;
             required: boolean;
+        };
+        TicketItem: {
+            contains: string[];
+            name: string;
+            note: string;
+            qty: string;
+        };
+        TicketView: {
+            /** Format: date-time */
+            createdAt: string;
+            customerName: string;
+            /** Format: int64 */
+            id: number;
+            items: components["schemas"]["TicketItem"][];
+            /** Format: int64 */
+            minutes: number;
+            orderType: string;
+            /** Format: date-time */
+            readyAt: string;
+            /** Format: int64 */
+            saleId: number;
+            saleNumber: string;
+            /** Format: date-time */
+            servedAt: string;
+            status: string;
+            tableNo: string;
+            /** Format: int32 */
+            tokenNo: number;
         };
         TillInput: {
             active?: boolean;
@@ -9732,6 +9819,78 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["InstallmentDueRow"][];
+                };
+            };
+        };
+    };
+    kitchenTickets: {
+        parameters: {
+            query?: {
+                branchId?: number;
+                status?: string;
+                date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TicketView"][];
+                };
+            };
+        };
+    };
+    kitchenTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TicketView"];
+                };
+            };
+        };
+    };
+    moveKitchenTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TicketView"];
                 };
             };
         };

@@ -331,8 +331,8 @@ class PlatformIT extends IntegrationTest {
 		ApiClient admin = platformUser("SUPER_ADMIN");
 		var overview = admin.get("/api/v1/platform/overview").andExpect(status().isOk());
 		assertThat(((Number) json(overview, "$.totalShops")).longValue()).isPositive();
-		assertThat((List<?>) json(overview, "$.byType")).hasSize(10);
-		assertThat((List<?>) json(admin.get("/api/v1/platform/shop-types"), "$")).hasSize(10);
+		assertThat((List<?>) json(overview, "$.byType")).hasSize(11);
+		assertThat((List<?>) json(admin.get("/api/v1/platform/shop-types"), "$")).hasSize(11);
 		List<String> prices = json(admin.get("/api/v1/platform/plans"), "$[*].priceMonth");
 		assertThat(prices).containsExactly("2500.00", "5500.00", "12000.00");
 		assertThat((List<?>) json(admin.get("/api/v1/platform/shops?type=medical"), "$.items")).isNotEmpty();

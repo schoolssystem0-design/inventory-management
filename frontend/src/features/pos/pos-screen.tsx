@@ -191,8 +191,14 @@ function Till({ session, branchId, shopCode }: { session: Session; branchId: num
   const loyaltyOn = feature("loyalty") && !!catalog.extras.settings?.loyalty;
   const loyalty = useLoyalty(cart.customer?.id, loyaltyOn);
   /** Pay: a prescription first when the bill needs one. */
+  const kitchenOn = feature("kitchen");
+  const orderType = cart.orderType ?? "TAKEAWAY";
   const startPay = () => {
     if (!cart.lines.length || t.invalid) return;
+    if (kitchenOn && orderType === "DINE_IN" && !cart.tableNo?.trim()) {
+      toast.error("Enter the table number for a dine-in order");
+      return;
+    }
     if (rx.needed && !cart.prescription) setRxOpen(true);
     else setPayOpen(true);
   };
@@ -504,6 +510,35 @@ function Till({ session, branchId, shopCode }: { session: Session; branchId: num
           )}
         </div>
 
+        {kitchenOn && (
+          <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2" role="group" aria-label="Order type">
+            {[
+              ["DINE_IN", "Dine-in"],
+              ["TAKEAWAY", "Takeaway"],
+              ...(feature("delivery") ? [["DELIVERY", "Delivery"]] : []),
+            ].map(([value, text]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={orderType === value}
+                onClick={() => setCart((c) => ({ ...c, orderType: value }))}
+                className={cn("rounded-lg px-3 py-1.5 text-sm", orderType === value ? "bg-aqua text-on-aqua" : "bg-raised text-muted hover:text-ink")}
+              >
+                {text}
+              </button>
+            ))}
+            {orderType === "DINE_IN" && (
+              <Input
+                value={cart.tableNo ?? ""}
+                onChange={(e) => setCart((c) => ({ ...c, tableNo: e.target.value }))}
+                placeholder="Table"
+                aria-label="Table number"
+                className="h-8 w-24"
+              />
+            )}
+          </div>
+        )}
+
         <ol className="flex-1 divide-y divide-line overflow-y-auto" aria-label="Items on the bill">
           {cart.lines.length === 0 && <li className="p-8 text-center text-sm text-faint">Scan or search to add items</li>}
           {cart.lines.map((line, i) => (
@@ -749,6 +784,15 @@ function Till({ session, branchId, shopCode }: { session: Session; branchId: num
         >
           <div className="space-y-3 text-center">
             <CheckCircle2 className="mx-auto size-12 text-good" aria-hidden />
+            {done.tokenNo && (
+              <p>
+                <span className="block text-sm text-muted">Token</span>
+                <span className="font-mono text-5xl font-bold text-aqua" aria-label={`Token ${done.tokenNo}`}>#{done.tokenNo}</span>
+                <span className="block text-sm text-muted">
+                  {done.orderType === "DINE_IN" ? `Dine-in · Table ${done.tableNo ?? ""}` : done.orderType === "DELIVERY" ? "Delivery" : "Takeaway"}
+                </span>
+              </p>
+            )}
             <p className="text-sm text-muted">Total {money(done.total)}</p>
             {done.change !== "0.00" && (
               <p>

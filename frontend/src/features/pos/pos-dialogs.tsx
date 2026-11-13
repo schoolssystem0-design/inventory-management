@@ -436,6 +436,7 @@ function LineBody({
   const [unit, setUnit] = React.useState<number | null>(line.unitId);
   const [batchId, setBatchId] = React.useState<number | null>(line.batchId);
   const [serials, setSerials] = React.useState(line.serials.join("\n"));
+  const [note, setNote] = React.useState(line.note ?? "");
   const batches = useQuery({
     queryKey: ["batches", p.id, branchId],
     queryFn: () => api<Schemas["BatchStock"][]>(`/batches?productId=${p.id}${branchId ? `&branchId=${branchId}` : ""}`),
@@ -481,6 +482,7 @@ function LineBody({
             batchId,
             batchLabel: batch ? `${batch.batchNo} · exp ${date(batch.expiry)}` : null,
             serials: p.kind === "SERIAL" ? serials.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean) : line.serials,
+            note,
           });
         }}
       >
@@ -518,6 +520,11 @@ function LineBody({
         <Field label="Discount" hint='Amount, or percent like "10%"' error={discOk ? undefined : "Not a valid discount"}>
           <Input value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="0" className="text-right font-mono" />
         </Field>
+        {(p.kind === "RECIPE" || p.kind === "BUNDLE") && (
+          <Field label="Note for the kitchen" className="col-span-2" hint="Shown on the kitchen screen and ticket.">
+            <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="No onions, extra spicy…" maxLength={200} />
+          </Field>
+        )}
         {p.kind === "BATCH" && (
           <Field label="Batch" className="col-span-2" hint="Leave on automatic to sell the earliest expiry first.">
             <Select value={batchId ?? ""} onChange={(e) => setBatchId(e.target.value ? Number(e.target.value) : null)}>

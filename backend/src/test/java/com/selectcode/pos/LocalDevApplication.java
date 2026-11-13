@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * Runs the API locally on an embedded PostgreSQL (no Docker or installed database needed):
  * {@code mvnw spring-boot:test-run "-Dspring-boot.run.main-class=com.selectcode.pos.LocalDevApplication"}.
  *
- * <p>Seeds a super admin and five demo shops created through the real creation wizard. Data is discarded when the
+ * <p>Seeds a super admin and six demo shops created through the real creation wizard. Data is discarded when the
  * process stops. Emails (setup and reset links) appear at http://localhost:8080/api/v1/dev/outbox.
  */
 public class LocalDevApplication {
@@ -61,10 +61,11 @@ public class LocalDevApplication {
 		seedShop(shops, seeder, db, "demo-pharmacy", "Shifa Pharmacy (Demo)", "medical", "business", hash);
 		seedShop(shops, seeder, db, "demo-electronics", "Star Electronics (Demo)", "electronics", "enterprise", hash);
 		seedShop(shops, seeder, db, "demo-hardware", "Build Mart Hardware (Demo)", "hardware", "enterprise", hash);
+		seedShop(shops, seeder, db, "demo-fastfood", "Burger Point (Demo)", "fast_food", "enterprise", hash);
 		System.out.println("""
 
 				  Local API ready on http://localhost:8080   (OpenAPI: http://localhost:8080/v3/api-docs)
-				  Shops        : demo-mobile, demo-mart, demo-pharmacy, demo-electronics, demo-hardware / username owner / password %s
+				  Shops        : demo-mobile, demo-mart, demo-pharmacy, demo-electronics, demo-hardware, demo-fastfood / username owner / password %s
 				  Super admin  : %s / %s / authenticator secret %s
 				  Dev outbox   : http://localhost:8080/api/v1/dev/outbox (setup and reset links)
 				""".formatted(DEMO_PASSWORD, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_TOTP_SECRET));

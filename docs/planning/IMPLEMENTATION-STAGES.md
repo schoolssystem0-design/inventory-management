@@ -216,6 +216,23 @@ D:\inventory-management-system\
 
 ---
 
+## Stage 4c — Fast food / restaurant shop type (added 2026-11-14 at your request)
+
+**Goal:** an 11th shop type for burger, pizza, shawarma and food points, with its own modules and staff roles.
+
+**Built:**
+- [x] Shop type `fast_food` with menu categories and kitchen units. On by default: recipes, kitchen, deals (bundles), several tills; on Business plans and up also offers and delivery
+- [x] **Menu items from recipes** (`recipes`): a menu item lists its ingredients per serving; each sale takes the ingredients out of stock and its cost is what they cost. Deals break down into their menu items' ingredients
+- [x] **Kitchen** (`kitchen`): order type (dine-in with table, takeaway, delivery), a token per branch per day, kitchen notes on lines, kitchen tickets and a kitchen screen (New → Preparing → Ready → Collected) that refreshes by itself, kitchen ticket print, token on the receipt
+- [x] Roles: **Kitchen staff** (kitchen screen only, no money) and **Rider** (deliveries only), plus the existing cashier and manager
+- [x] Returned food is not restocked (recorded as waste); a same-day cancel gives the ingredients back and cancels the ticket
+- [x] Demo shop **demo-fastfood** (Burger Point) with ingredients, recipes, deals, history and orders on the kitchen screen
+- [x] Tests: `FastFoodIT` (6), shop isolation and the role/permission matrix include the new records and roles, full trading day for all 11 types, Vitest, Playwright `fast-food.spec.ts`
+
+**Status:** complete 2026-11-14. Waiting for approval.
+
+---
+
 ## Stage 5 — Connect and deploy
 
 **Goal:** the whole system running on staging exactly as it will in production.

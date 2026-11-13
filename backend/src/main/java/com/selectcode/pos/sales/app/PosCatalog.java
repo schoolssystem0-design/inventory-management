@@ -125,7 +125,7 @@ public class PosCatalog {
 					Amounts.text(rs.getBigDecimal("price")), Amounts.text(rs.getBigDecimal("min_price")),
 					Amounts.percentText(rs.getBigDecimal("tax_rate")), rs.getBoolean("decimals"),
 					rs.getString("unit_name"),
-					"SERVICE".equals(kind) || "BUNDLE".equals(kind) ? null
+					"SERVICE".equals(kind) || "BUNDLE".equals(kind) || "RECIPE".equals(kind) ? null
 							: Amounts.qtyText(stock == null ? BigDecimal.ZERO : stock),
 					barcodes.getOrDefault(id, List.of()), units.getOrDefault(id, List.of()), rs.getString("formula"),
 					parts, (Long) rs.getObject("category_id"), rs.getString("scale_code"), rs.getString("schedule"));

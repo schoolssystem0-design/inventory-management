@@ -30,7 +30,7 @@ class TradingDayIT extends IntegrationTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = { "mobile", "super_store", "medical", "garments", "electronics", "hardware", "cosmetics",
-			"books", "auto_parts", "general" })
+			"books", "auto_parts", "general", "fast_food" })
 	void demoShopRunsAFullDay(String type) throws Exception {
 		Map<String, Object> demo = demoShops.reset(type, DemoShops.Size.SMALL);
 		long shopId = ((Number) demo.get("shopId")).longValue();

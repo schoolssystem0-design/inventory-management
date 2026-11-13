@@ -96,14 +96,14 @@ export default function ProductPage() {
         tabs={[
           { value: "details", label: "Details" },
           { value: "variants", label: "Sizes and colours", hidden: p.kind !== "VARIANT_PARENT" },
-          { value: "bundle", label: "Bundle items", hidden: p.kind !== "BUNDLE" },
+          { value: "bundle", label: p.kind === "RECIPE" ? "Recipe" : "Bundle items", hidden: p.kind !== "BUNDLE" && p.kind !== "RECIPE" },
           { value: "edit", label: "Edit", hidden: !can(P.CATALOG_MANAGE) },
           { value: "history", label: "History" },
         ]}
       />
 
       {tab === "variants" && <VariantGridPanel productId={p.id} />}
-      {tab === "bundle" && <BundlePanel productId={p.id} />}
+      {tab === "bundle" && <BundlePanel productId={p.id} recipe={p.kind === "RECIPE"} />}
       {tab === "details" && (
         <div className="grid gap-5 lg:grid-cols-3">
           <div className="space-y-5 lg:col-span-2">

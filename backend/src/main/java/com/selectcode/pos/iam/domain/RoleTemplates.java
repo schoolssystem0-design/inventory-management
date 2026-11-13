@@ -38,10 +38,10 @@ public final class RoleTemplates {
 						PURCHASING_MANAGE, SUPPLIERS_PAYMENTS, STOCK_VIEW, STOCK_ADJUST, STOCK_COUNT, STOCK_TRANSFER,
 						CASH_VIEW, EXPENSES_MANAGE, REPORTS_VIEW, APPROVALS_GRANT, SERIALS_MANAGE, BUYBACK_MANAGE,
 						WARRANTY_MANAGE, REPAIRS_MANAGE, PROMOTIONS_MANAGE, LOYALTY_MANAGE, INSTALLMENTS_MANAGE,
-						DELIVERY_MANAGE)));
+						DELIVERY_MANAGE, KITCHEN_VIEW)));
 		roles.add(new Template("CASHIER", "Cashier", "Sells at the till and takes payments; never sees cost or profit",
 				List.of(CATALOG_VIEW, POS_SELL, SALES_VIEW, QUOTATIONS_MANAGE, TILL_MANAGE, CUSTOMERS_VIEW,
-						CUSTOMERS_MANAGE, CUSTOMERS_PAYMENTS)));
+						CUSTOMERS_MANAGE, CUSTOMERS_PAYMENTS, KITCHEN_VIEW)));
 		roles.add(new Template("SALESMAN", "Salesman (floor)", "Makes draft bills and quotations for the cashier",
 				List.of(CATALOG_VIEW, QUOTATIONS_MANAGE, CUSTOMERS_VIEW)));
 		roles.add(new Template("STOCK_KEEPER", "Stock keeper", "Receives goods, counts, transfers and prints labels",
@@ -57,6 +57,14 @@ public final class RoleTemplates {
 					"Cashier rights plus approving prescription and controlled medicines with their PIN",
 					List.of(CATALOG_VIEW, POS_SELL, SALES_VIEW, TILL_MANAGE, CUSTOMERS_VIEW, CUSTOMERS_MANAGE,
 							CUSTOMERS_PAYMENTS, STOCK_VIEW, PRESCRIPTIONS_APPROVE, APPROVALS_GRANT)));
+		}
+		if (modules.contains(ModuleKey.KITCHEN)) {
+			roles.add(new Template("KITCHEN", "Kitchen staff", "Sees the kitchen screen and marks orders ready; no money",
+					List.of(KITCHEN_VIEW)));
+		}
+		if (modules.contains(ModuleKey.DELIVERY)) {
+			roles.add(new Template("RIDER", "Rider", "Sees deliveries and marks them on the way or delivered",
+					List.of(DELIVERY_MANAGE)));
 		}
 		if (modules.contains(ModuleKey.REPAIRS)) {
 			roles.add(new Template("TECHNICIAN", "Technician", "Repair jobs assigned to them and parts used",

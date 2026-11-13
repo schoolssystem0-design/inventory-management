@@ -30,7 +30,7 @@ public class SaleQueries {
 	public record SaleLineView(long id, int lineNo, long productId, String productName, String unitName,
 			String qty, String price, String listPrice, String discount, String billShare, String net, String taxRate,
 			String tax, String total, String batchNo, LocalDate expiry, String serial, LocalDate warrantyUntil,
-			String qtyReturned, String unitCost, String costTotal, String promoDiscount, String offerName) {
+			String qtyReturned, String unitCost, String costTotal, String promoDiscount, String offerName, String note) {
 	}
 
 	public record SalePaymentView(long id, String kind, String method, String amount, String tendered,
@@ -47,7 +47,8 @@ public class SaleQueries {
 			String paid, String due, String change, String costTotal, String profit, String approvalNote,
 			String note, LocalDate date, Instant at, Instant cancelledAt, String cancelReason, List<SaleLineView> lines,
 			List<SalePaymentView> payments, List<SaleReturnSummary> returns, String promoDiscount, String couponCode,
-			String billOfferName, Long prescriptionId, int pointsEarned, int pointsUsed) {
+			String billOfferName, Long prescriptionId, int pointsEarned, int pointsUsed, String orderType, String tableNo,
+			Integer tokenNo) {
 	}
 
 	public record SaleListItem(long id, String number, String branchName, String customerName, String cashierName,
@@ -96,7 +97,7 @@ public class SaleQueries {
 				rs.getObject("warranty_until", LocalDate.class), Amounts.qtyText(rs.getBigDecimal("qty_returned")),
 				cost ? Amounts.text(rs.getBigDecimal("unit_cost")) : null,
 				cost ? Amounts.text(rs.getBigDecimal("cost_total")) : null, Amounts.text(rs.getBigDecimal("promo_discount")),
-				rs.getString("offer_name")), id);
+				rs.getString("offer_name"), rs.getString("note")), id);
 		List<SalePaymentView> payments = jdbc.query("select * from sale_payment where sale_id = ? order by id",
 				(rs, i) -> new SalePaymentView(rs.getLong("id"), rs.getString("kind"), rs.getString("method_key"),
 						Amounts.text(rs.getBigDecimal("amount")), Amounts.text(rs.getBigDecimal("tendered")),
@@ -138,7 +139,8 @@ public class SaleQueries {
 						: jdbc.queryForList("select name from promotion where id = ?", String.class, s.get("bill_promotion_id"))
 							.stream().findFirst().orElse(null),
 				s.get("prescription_id") == null ? null : ((Number) s.get("prescription_id")).longValue(),
-				points(id, "EARN"), -points(id, "REDEEM"));
+				points(id, "EARN"), -points(id, "REDEEM"), (String) s.get("order_type"), (String) s.get("table_no"),
+				s.get("token_no") == null ? null : ((Number) s.get("token_no")).intValue());
 	}
 
 	private int points(long saleId, String kind) {

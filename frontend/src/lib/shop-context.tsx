@@ -117,6 +117,7 @@ export const P = {
   LOYALTY_MANAGE: "loyalty.manage",
   INSTALLMENTS_MANAGE: "installments.manage",
   DELIVERY_MANAGE: "delivery.manage",
+  KITCHEN_VIEW: "kitchen.view",
   SUBSCRIPTION_VIEW: "subscription.view",
   SUPPORT_APPROVE: "support.approve",
 } as const;
