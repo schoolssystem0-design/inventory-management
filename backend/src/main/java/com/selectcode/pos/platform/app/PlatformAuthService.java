@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -56,14 +57,18 @@ public class PlatformAuthService {
 
 	private final String dummyHash;
 
+	private final boolean totpRequired;
+
 	PlatformAuthService(PlatformUserRepository users, PasswordEncoder passwordEncoder, RateLimiter rateLimiter,
-			JdbcTemplate jdbc, PlatformTransactionManager transactionManager, Clock clock) {
+			JdbcTemplate jdbc, PlatformTransactionManager transactionManager, Clock clock,
+			@Value("${app.platform.totp-required:true}") boolean totpRequired) {
 		this.users = users;
 		this.passwordEncoder = passwordEncoder;
 		this.rateLimiter = rateLimiter;
 		this.jdbc = jdbc;
 		this.transaction = new TransactionTemplate(transactionManager);
 		this.clock = clock;
+		this.totpRequired = totpRequired;
 		this.dummyHash = passwordEncoder.encode("not-a-real-password");
 	}
 
@@ -95,6 +100,11 @@ public class PlatformAuthService {
 			user.recordFailure(now);
 			record(user, email, "INVALID", ip, userAgent);
 			return invalid();
+		}
+		if (!totpRequired) {
+			user.recordSuccess(now);
+			record(user, email, "SUCCESS", ip, userAgent);
+			return new Outcome.SignedIn(principal(user));
 		}
 		if (user.getTotpSecret() == null) {
 			String secret = Totp.newSecret();

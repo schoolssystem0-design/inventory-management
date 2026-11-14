@@ -6,7 +6,7 @@ type (mobile shop, super store, medical store, fast food and 7 more), which deci
 ## Folders
 
 ```
-inventory-management-system/
+inventory-management/      (this repository — monorepo)
 ├── backend/                 Java 21 + Spring Boot API (all business rules and data)
 │   ├── src/main/java/com/selectcode/pos/
 │   │   ├── platform/        super admin: shops, plans, billing, demo shops

@@ -8,6 +8,7 @@ import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { platformUrl } from "@/lib/routing";
 
 type LoginResponse = Schemas["PlatformLoginResponse"];
 
@@ -26,7 +27,7 @@ export default function PlatformLoginPage() {
   async function finish() {
     resetCsrfToken();
     await client.invalidateQueries();
-    router.replace("/");
+    router.replace(platformUrl("/"));
   }
 
   async function submit(e: React.FormEvent) {

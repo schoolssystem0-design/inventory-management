@@ -8,7 +8,7 @@ import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api, fileUrl, resetCsrfToken, type Schemas } from "@/lib/api/client";
-import { currentShopCode } from "@/lib/routing";
+import { currentShopCode, shopUrl } from "@/lib/routing";
 import { useBrowserValue } from "@/lib/use-browser-value";
 
 export default function ShopLoginPage() {
@@ -41,7 +41,7 @@ export default function ShopLoginPage() {
       });
       resetCsrfToken();
       await client.invalidateQueries();
-      router.replace("/");
+      router.replace(shopUrl(code, "/"));
     } catch (err) {
       if (err instanceof ApiError && err.code === "totp_required") {
         setNeedTotp(true);

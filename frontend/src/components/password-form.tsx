@@ -6,6 +6,7 @@ import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api } from "@/lib/api/client";
+import { useShopHref } from "@/lib/shop-context";
 
 export const PASSWORD_HINT = "At least 10 characters. A short phrase works well; avoid your username.";
 
@@ -23,6 +24,7 @@ export function PasswordForm({
   subtitle: string;
   done: string;
 }) {
+  const shopHref = useShopHref();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export function PasswordForm({
     return (
       <AuthCard title="All done">
         <p className="mb-4 text-sm text-muted">{done}</p>
-        <Link href="/login" className="font-semibold text-aqua hover:underline">
+        <Link href={shopHref("/login")} className="font-semibold text-aqua hover:underline">
           Go to sign in →
         </Link>
       </AuthCard>

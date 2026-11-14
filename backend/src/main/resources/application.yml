@@ -58,6 +58,8 @@ app:
   root-domain: ${APP_ROOT_DOMAIN:localhost:3000}
   # Scheme for links in emails
   web-scheme: ${APP_WEB_SCHEME:http}
+  # On *.vercel.app (or when true): shops at /s/<code>/… and platform at /login and /platform/…
+  path-routing: ${APP_PATH_ROUTING:false}
   mail:
     from: ${MAIL_FROM:}
     from-name: ${MAIL_FROM_NAME:SelectCode POS}

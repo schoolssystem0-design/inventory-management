@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { areaOf, decideRoute } from "./routing";
+import { areaOf, decideRoute, rewriteLegacyShopLink } from "./routing";
 
 const ROOT = "selectcodepos.com";
 
@@ -29,5 +29,22 @@ describe("decideRoute", () => {
   it("never serves internal folders directly", () => {
     expect(decideRoute("ali.selectcodepos.com", "/platform/shops", ROOT)).toEqual({ kind: "notFound" });
     expect(decideRoute("admin.selectcodepos.com", "/shop/products", ROOT)).toEqual({ kind: "notFound" });
+  });
+
+  it("serves platform and shops on the apex host for vercel.app (no admin subdomain)", () => {
+    const vercel = "inventory-pos-frontend.vercel.app";
+    expect(decideRoute(vercel, "/login", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/login" });
+    expect(decideRoute(vercel, "/platform/shops", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops" });
+    expect(decideRoute(vercel, "/shops", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops" });
+    expect(decideRoute(vercel, "/s/demo-mart/login", vercel)).toEqual({ kind: "rewrite", pathname: "/shop/login" });
+  });
+});
+
+describe("rewriteLegacyShopLink", () => {
+  it("rewrites shop subdomain links on vercel.app", () => {
+    const root = "inventory-pos-frontend.vercel.app";
+    expect(rewriteLegacyShopLink("https://demo-mart.inventory-pos-frontend.vercel.app/setup?token=abc", root)).toBe(
+      "https://inventory-pos-frontend.vercel.app/s/demo-mart/setup?token=abc",
+    );
   });
 });

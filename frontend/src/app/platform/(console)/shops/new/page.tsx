@@ -11,7 +11,7 @@ import { AmountInput, Checkbox, Field, Input, Select, Textarea } from "@/compone
 import { PageHeader, Panel } from "@/components/ui/layout";
 import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { money, plural } from "@/lib/format";
-import { rootDomain, stripPort } from "@/lib/routing";
+import { rewriteLegacyShopLink, rootDomain, stripPort, usePathBasedRouting } from "@/lib/routing";
 
 type NewShop = Schemas["NewShop"];
 type Created = Schemas["ShopCreated"];
@@ -136,11 +136,11 @@ export default function NewShopPage() {
               Send this one-time link to the owner (valid 48 hours). {created.ownerSetup.emailed ? "It was also emailed to them." : "It was not emailed."}
             </p>
             <div className="flex gap-2">
-              <Input readOnly value={created.ownerSetup.link} className="font-mono text-xs" aria-label="Owner setup link" />
+              <Input readOnly value={rewriteLegacyShopLink(created.ownerSetup.link)} className="font-mono text-xs" aria-label="Owner setup link" />
               <Button
                 variant="secondary"
                 onClick={() => {
-                  navigator.clipboard?.writeText(created.ownerSetup.link);
+                  navigator.clipboard?.writeText(rewriteLegacyShopLink(created.ownerSetup.link));
                   toast.success("Copied");
                 }}
               >
@@ -193,7 +193,17 @@ export default function NewShopPage() {
             <Field
               label="Shop code"
               required
-              hint={check.data?.available === false ? undefined : s.code ? `Address: ${s.code.toLowerCase()}.${stripPort(rootDomain())}` : check.data?.suggestion ? `Suggestion: ${check.data.suggestion}` : "Small letters, numbers and dashes"}
+              hint={
+                check.data?.available === false
+                  ? undefined
+                  : s.code
+                    ? usePathBasedRouting()
+                      ? `Shop URL: /s/${s.code.toLowerCase()}/login`
+                      : `Address: ${s.code.toLowerCase()}.${stripPort(rootDomain())}`
+                    : check.data?.suggestion
+                      ? `Suggestion: ${check.data.suggestion}`
+                      : "Small letters, numbers and dashes"
+              }
               error={error?.field("code") ?? (error?.code === "code_taken" ? error.message : undefined) ?? (check.data?.available === false && s.code ? `${check.data.reason}. Try ${check.data.suggestion}` : undefined)}
             >
               <Input value={s.code} onChange={(e) => set("code", e.target.value.toLowerCase())} autoCapitalize="none" className="font-mono" maxLength={30} />
