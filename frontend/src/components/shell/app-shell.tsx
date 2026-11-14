@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "cn";
-import { Boxes, Home, Lock, LogOut, Menu, Receipt, Search, ShoppingCart, Store, X } from "lucide-react";
+import { Boxes, Home, Lock, LogOut, Menu, Receipt, Search, ShoppingCart, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
@@ -15,7 +15,8 @@ import { visibleNav } from "@/components/shell/nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/fields";
 import { Skeleton } from "@/components/ui/layout";
-import { ApiError, api, errorMessage, fileUrl, resetCsrfToken } from "@/lib/api/client";
+import { BrandMark } from "@/components/brand-mark";
+import { ApiError, api, errorMessage, resetCsrfToken } from "@/lib/api/client";
 import { platformUrl, shopBase } from "@/lib/routing";
 import {
   ShopContextProvider,
@@ -209,17 +210,9 @@ function BottomLink({ href, label, icon: Icon, active }: { href: string; label: 
 
 function ShopTitle() {
   const shop = useShop();
-  const logo = fileUrl(shop.shop.logoFileId);
   return (
     <div className="flex items-center gap-3 px-5 py-5">
-      {logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={logo} alt="" className="size-9 rounded-lg object-cover" />
-      ) : (
-        <span className="grid size-9 place-items-center rounded-lg bg-aqua/15 text-aqua">
-          <Store className="size-5" aria-hidden />
-        </span>
-      )}
+      <BrandMark variant="icon" className="size-9 shrink-0 rounded-lg" />
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold">{shop.shop.name}</p>
         <p className="truncate text-xs text-faint">{shop.shop.typeName}</p>

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
-import { ApiError, api, fileUrl, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { ApiError, api, resetCsrfToken, type Schemas } from "@/lib/api/client";
 import { BRAND, BRAND_ASSETS } from "@/lib/brand";
 import { currentShopCode, shopUrl } from "@/lib/routing";
 import { useShopPublicHref } from "@/lib/shop-public-href";
@@ -70,7 +70,8 @@ export default function ShopLoginPage() {
     <AuthCard
       title={shop.data?.name ?? "Sign in"}
       subtitle="Sign in to your shop"
-      logo={fileUrl(shop.data?.logoFileId) ?? BRAND_ASSETS.icon}
+      logo={BRAND_ASSETS.logo}
+      logoWide
       footer={<span>{BRAND.product}</span>}
     >
       {shop.data?.message && (
