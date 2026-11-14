@@ -6,12 +6,15 @@ export function AuthCard({
   title,
   subtitle,
   logo,
+  logoWide,
   children,
   footer,
 }: {
   title: string;
   subtitle?: React.ReactNode;
   logo?: string | null;
+  /** Horizontal brand mark (platform login); shop logos stay square. */
+  logoWide?: boolean;
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
@@ -22,7 +25,15 @@ export function AuthCard({
           <div className="mb-6 flex items-center gap-3">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" className="size-11 rounded-xl object-cover" />
+              <img
+                src={logo}
+                alt=""
+                className={
+                  logoWide
+                    ? "h-11 w-auto max-w-[11rem] shrink-0 object-contain object-left"
+                    : "size-11 shrink-0 rounded-xl object-cover"
+                }
+              />
             ) : (
               <span className="grid size-11 place-items-center rounded-xl bg-aqua/15 text-aqua">
                 <Store className="size-6" aria-hidden />

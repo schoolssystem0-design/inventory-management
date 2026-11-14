@@ -1,7 +1,7 @@
 "use client";
 
-import { Store } from "lucide-react";
 import { useState } from "react";
+import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { BRAND } from "@/lib/brand";
@@ -17,14 +17,9 @@ export default function LandingPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center p-4">
       <div className="glass w-full max-w-sm p-6">
-        <div className="mb-6 flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-xl bg-aqua/15 text-aqua">
-            <Store className="size-6" aria-hidden />
-          </span>
-          <div>
-            <h1 className="text-lg font-bold">{BRAND.product}</h1>
-            <p className="text-sm text-muted">Go to your shop</p>
-          </div>
+        <div className="mb-6">
+          <BrandMark variant="logo" className="mb-3 max-h-11" />
+          <p className="text-sm text-muted">Go to your shop</p>
         </div>
         <form
           onSubmit={(e) => {

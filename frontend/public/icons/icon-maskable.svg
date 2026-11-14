@@ -1,1 +1,2 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#19191b"/><rect x="136" y="176" width="240" height="180" rx="28" fill="none" stroke="#4fbfae" stroke-width="26"/><path d="M186 176v-22a28 28 0 0 1 28-28h84a28 28 0 0 1 28 28v22" fill="none" stroke="#4fbfae" stroke-width="26"/><path d="M196 240v62M236 240v62M276 240v62M316 240v62" stroke="#ededed" stroke-width="16" stroke-linecap="round"/></svg>
+<!-- Legacy path; PWA uses /brand/tirvex-icon-512.jpg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><image href="/brand/tirvex-icon-512.jpg" width="512" height="512"/></svg>

@@ -2,12 +2,13 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn } from "cn";
-import { Building, Gauge, LayoutTemplate, LogOut, Menu, Plus, ReceiptText, ScrollText, Settings, Store, UserCog, X } from "lucide-react";
+import { Gauge, LayoutTemplate, LogOut, Menu, Plus, ReceiptText, ScrollText, Settings, Store, UserCog, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { Skeleton } from "@/components/ui/layout";
 import { ApiError, api, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { BrandMark } from "@/components/brand-mark";
 import { BRAND } from "@/lib/brand";
 import { consoleHref } from "@/lib/routing";
 
@@ -95,14 +96,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
     </nav>
   );
   const brand = (
-    <div className="flex items-center gap-3 px-5 py-5">
-      <span className="grid size-9 place-items-center rounded-lg bg-aqua/15 text-aqua">
-        <Building className="size-5" aria-hidden />
-      </span>
-      <div>
-        <p className="text-sm font-semibold">{BRAND.product}</p>
-        <p className="text-xs text-aqua">Platform</p>
-      </div>
+    <div className="px-5 py-5">
+      <BrandMark variant="logo" className="max-h-9" />
+      <p className="mt-2 text-xs text-aqua">Platform</p>
     </div>
   );
   const footer = (

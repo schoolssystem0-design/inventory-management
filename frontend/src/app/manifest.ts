@@ -12,8 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#141415",
     theme_color: "#141415",
     icons: [
-      { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/icons/icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      { src: "/brand/tirvex-icon-512.jpg", sizes: "512x512", type: "image/jpeg", purpose: "any" },
+      { src: "/brand/tirvex-icon-512.jpg", sizes: "512x512", type: "image/jpeg", purpose: "maskable" },
     ],
   };
 }
