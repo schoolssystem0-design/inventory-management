@@ -276,6 +276,24 @@ class PlatformIT extends IntegrationTest {
 	}
 
 	@Test
+	void platformCanListEditAndResetShopUsers() throws Exception {
+		TestShop shop = newShop("general", "business");
+		long cashier = createUser(shop, "CASHIER", "desk1");
+		ApiClient admin = platformUser("SUPER_ADMIN");
+		var list = admin.get("/api/v1/platform/shops/" + shop.id() + "/users").andExpect(status().isOk());
+		assertThat(((Number) json(list, "$.total")).intValue()).isGreaterThanOrEqualTo(2);
+		admin.patch("/api/v1/platform/shops/" + shop.id() + "/users/" + cashier,
+				"{\"displayName\":\"Desk One\",\"phone\":\"03001234567\",\"email\":\"desk1@example.test\"}")
+			.andExpect(status().isOk());
+		var reset = admin.post("/api/v1/platform/shops/" + shop.id() + "/users/" + cashier + "/reset-password", "{}")
+			.andExpect(status().isOk());
+		assertThat((String) json(reset, "$.temporaryPassword")).hasSize(16);
+		long ownerId = ((Number) json(shop.owner().get("/api/v1/shop/context"), "$.user.id")).longValue();
+		admin.post("/api/v1/platform/shops/" + shop.id() + "/users/" + ownerId + "/reset-password", "{}")
+			.andExpect(status().isOk());
+	}
+
+	@Test
 	void ownerCanBeChanged() throws Exception {
 		TestShop shop = newShop("general", "enterprise");
 		long manager = createUser(shop, "MANAGER", "newboss");

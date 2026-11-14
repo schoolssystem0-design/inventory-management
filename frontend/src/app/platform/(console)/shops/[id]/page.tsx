@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, LifeBuoy } from "lucide-react";
+import { ExternalLink, KeyRound, LifeBuoy } from "lucide-react";
 import { useParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -13,9 +13,10 @@ import { Badge, DetailList, ErrorState, PageHeader, Panel, Skeleton, Tabs, statu
 import { ImportResultView } from "@/features/catalog/import-result";
 import { ApiError, api, errorMessage, type Schemas } from "@/lib/api/client";
 import { date, dateTime, label, money } from "@/lib/format";
+import { ShopUsersTab } from "./shop-users-tab";
 
 type Profile = Schemas["ShopProfile"];
-type Tab = "overview" | "modules" | "subscription" | "owner" | "import" | "danger";
+type Tab = "overview" | "modules" | "subscription" | "owner" | "users" | "import" | "danger";
 
 /** PLT-10..18: one shop's profile, modules, plan, owner access, support session and closing. */
 export default function ShopProfilePage() {
@@ -78,6 +79,7 @@ export default function ShopProfilePage() {
           { value: "modules", label: "Features" },
           { value: "subscription", label: "Plan and billing" },
           { value: "owner", label: "Owner" },
+          { value: "users", label: "Users" },
           { value: "import", label: "Import products", hidden: !cap("platform.import") },
           { value: "danger", label: "Suspend or close", hidden: !cap("platform.shops.manage") && !cap("platform.billing") && !cap("platform.shops.delete") },
         ]}
@@ -85,7 +87,15 @@ export default function ShopProfilePage() {
       {tab === "overview" && <Overview p={p} onSaved={update} canEdit={cap("platform.shops.manage")} usage={usage} />}
       {tab === "modules" && <Modules p={p} onSaved={update} canEdit={cap("platform.shops.manage")} />}
       {tab === "subscription" && <Subscription p={p} onSaved={update} canEdit={cap("platform.shops.manage") || cap("platform.billing")} />}
-      {tab === "owner" && <Owner p={p} canManage={cap("platform.shops.manage")} canLink={cap("platform.shops.manage") || cap("platform.support")} onSaved={() => profile.refetch()} />}
+      {tab === "owner" && (
+        <Owner
+          p={p}
+          canManage={cap("platform.shops.manage")}
+          canLink={cap("platform.shops.manage") || cap("platform.support")}
+          onSaved={() => profile.refetch()}
+        />
+      )}
+      {tab === "users" && <ShopUsersTab shopId={p.id} canManage={cap("platform.shops.manage")} />}
       {tab === "import" && <ImportForClient shopId={p.id} />}
       {tab === "danger" && <Danger p={p} onSaved={update} cap={cap} />}
 
@@ -294,6 +304,7 @@ function Subscription({ p, onSaved, canEdit }: { p: Profile; onSaved: (p: Profil
 
 function Owner({ p, canManage, canLink, onSaved }: { p: Profile; canManage: boolean; canLink: boolean; onSaved: () => void }) {
   const [link, setLink] = React.useState<string | null>(null);
+  const [tempPassword, setTempPassword] = React.useState<string | null>(null);
   const [change, setChange] = React.useState({ userId: "", reason: "" });
   const sendLink = useMutation({
     mutationFn: () => api<Schemas["SetupLink"]>(`/platform/shops/${p.id}/owner/setup-link`, { method: "POST" }),
@@ -308,6 +319,19 @@ function Owner({ p, canManage, canLink, onSaved }: { p: Profile; canManage: bool
     onSuccess: () => {
       toast.success("Owner changed");
       setChange({ userId: "", reason: "" });
+      onSaved();
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  });
+  const resetOwner = useMutation({
+    mutationFn: ({ byLink }: { byLink: boolean }) =>
+      api<Schemas["PasswordReset"]>(`/platform/shops/${p.id}/users/${p.owner!.userId}/reset-password`, {
+        method: "POST",
+        body: { byLink },
+      }),
+    onSuccess: (r) => {
+      if (r.temporaryPassword) setTempPassword(r.temporaryPassword);
+      else toast.success(r.linkSent ? "Reset link emailed" : "Reset link created (email may not be configured)");
       onSaved();
     },
     onError: (e) => toast.error(errorMessage(e)),
@@ -329,13 +353,32 @@ function Owner({ p, canManage, canLink, onSaved }: { p: Profile; canManage: bool
         ) : (
           <p className="text-sm text-muted">No owner.</p>
         )}
-        {canLink && (
+        {canLink && p.owner && (
           <div className="mt-5 space-y-3">
-            <Button variant="secondary" onClick={() => sendLink.mutate()} loading={sendLink.isPending}>
-              New setup link
-            </Button>
-            <p className="text-xs text-faint">Unlocks the owner and lets them choose a new password. Older links stop working.</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" onClick={() => sendLink.mutate()} loading={sendLink.isPending}>
+                New setup link
+              </Button>
+              {canManage && (
+                <>
+                  <Button variant="secondary" onClick={() => resetOwner.mutate({ byLink: false })} loading={resetOwner.isPending}>
+                    <KeyRound /> Temporary password
+                  </Button>
+                  {p.owner.email && (
+                    <Button variant="secondary" onClick={() => resetOwner.mutate({ byLink: true })} loading={resetOwner.isPending}>
+                      Email reset link
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+            <p className="text-xs text-faint">
+              Setup link: first-time password. Temporary password or email reset: for a user who already has an account.
+            </p>
             {link && <Input readOnly value={link} className="font-mono text-xs" aria-label="Setup link" />}
+            {tempPassword && (
+              <Input readOnly value={tempPassword} className="font-mono text-xs" aria-label="Temporary password" />
+            )}
           </div>
         )}
       </Panel>

@@ -2,8 +2,14 @@ package com.selectcode.pos.platform.api;
 
 import com.selectcode.pos.catalog.app.ProductImportService;
 import com.selectcode.pos.catalog.app.ProductImportService.ImportResult;
+import com.selectcode.pos.iam.app.SecurityLogQueries;
+import com.selectcode.pos.iam.app.SecurityLogQueries.RoleView;
+import com.selectcode.pos.iam.app.UserAdminService;
 import com.selectcode.pos.iam.app.UserAdminService.OwnerSummary;
+import com.selectcode.pos.iam.app.UserAdminService.PasswordReset;
 import com.selectcode.pos.iam.app.UserAdminService.SetupLink;
+import com.selectcode.pos.iam.app.UserAdminService.UserInput;
+import com.selectcode.pos.iam.app.UserAdminService.UserView;
 import com.selectcode.pos.platform.PlatformPrincipal;
 import com.selectcode.pos.platform.app.PlatformAdminService;
 import com.selectcode.pos.platform.app.PlatformAdminService.Overview;
@@ -94,6 +100,9 @@ class PlatformController {
 	record ChangeOwnerRequest(Long userId, @Size(max = 500) String reason) {
 	}
 
+	record ResetShopPasswordRequest(Boolean byLink) {
+	}
+
 	record SupportStart(Long shopId, @Size(max = 500) String reason) {
 	}
 
@@ -110,18 +119,25 @@ class PlatformController {
 
 	private final ProductImportService imports;
 
+	private final UserAdminService shopUsers;
+
+	private final SecurityLogQueries shopSecurityLogs;
+
 	private final SecurityContextRepository securityContextRepository;
 
 	private final TransactionTemplate tx;
 
 	PlatformController(PlatformAuthService auth, ShopAdminService shops, PlatformAdminService admin,
-			SupportSessionService support, ProductImportService imports,
-			SecurityContextRepository securityContextRepository, PlatformTransactionManager transactions) {
+			SupportSessionService support, ProductImportService imports, UserAdminService shopUsers,
+			SecurityLogQueries shopSecurityLogs, SecurityContextRepository securityContextRepository,
+			PlatformTransactionManager transactions) {
 		this.auth = auth;
 		this.shops = shops;
 		this.admin = admin;
 		this.support = support;
 		this.imports = imports;
+		this.shopUsers = shopUsers;
+		this.shopSecurityLogs = shopSecurityLogs;
 		this.securityContextRepository = securityContextRepository;
 		this.tx = new TransactionTemplate(transactions);
 	}
@@ -272,6 +288,40 @@ class PlatformController {
 			throw com.selectcode.pos.shared.web.ApiException.field("userId", "required", "Choose the new owner");
 		}
 		return shops.changeOwner(id, body.userId(), body.reason());
+	}
+
+	@PreAuthorize(PlatformAuthorities.HAS_SHOPS_VIEW)
+	@GetMapping("/shops/{id}/users")
+	PageResponse<UserView> listShopUsers(@PathVariable long id, @RequestParam(required = false) String q,
+			@RequestParam(required = false) String status, @RequestParam(required = false) Integer page,
+			@RequestParam(required = false) Integer size) {
+		shops.profile(id);
+		return asShopOwner(id,
+				() -> shopUsers.list(q, status, PageResponse.page(page), PageResponse.size(size)));
+	}
+
+	@PreAuthorize(PlatformAuthorities.HAS_SHOPS_VIEW)
+	@GetMapping("/shops/{id}/roles")
+	List<RoleView> listShopRoles(@PathVariable long id) {
+		shops.profile(id);
+		return asShopOwner(id, shopSecurityLogs::roles);
+	}
+
+	@PreAuthorize(PlatformAuthorities.HAS_SHOPS_MANAGE)
+	@PatchMapping("/shops/{shopId}/users/{userId}")
+	UserView updateShopUser(@PathVariable long shopId, @PathVariable long userId, @RequestBody UserInput body) {
+		shops.profile(shopId);
+		return asShopOwner(shopId, () -> shopUsers.update(userId, body));
+	}
+
+	/** Temporary password (default) or reset link by email ({@code byLink: true}). Works for the owner and staff. */
+	@PreAuthorize(PlatformAuthorities.HAS_SHOPS_MANAGE)
+	@PostMapping("/shops/{shopId}/users/{userId}/reset-password")
+	PasswordReset resetShopUserPassword(@PathVariable long shopId, @PathVariable long userId,
+			@RequestBody(required = false) ResetShopPasswordRequest body) {
+		shops.profile(shopId);
+		boolean byLink = body != null && Boolean.TRUE.equals(body.byLink());
+		return asShopOwner(shopId, () -> shopUsers.resetPassword(userId, byLink));
 	}
 
 	/** Imports a client's product Excel during onboarding (PLT-18); same rules as the shop's own import. */
