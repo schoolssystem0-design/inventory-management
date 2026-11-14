@@ -15,7 +15,7 @@ export function PageHeader({
   back?: { href: string; label: string };
 }) {
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
       <div className="min-w-0">
         {back && (
           <Link href={back.href} className="mb-1 inline-block text-[13px] text-faint hover:text-aqua">
@@ -25,7 +25,7 @@ export function PageHeader({
         <h1 className="text-2xl font-bold tracking-tight text-ink">{title}</h1>
         {description && <p className="mt-1 text-sm text-muted">{description}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">{actions}</div>}
     </header>
   );
 }
@@ -182,8 +182,8 @@ export function TableSkeleton({ rows = 6, cols = 4 }: { rows?: number; cols?: nu
 /** A table that scrolls inside its card on narrow screens. */
 export function Table({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="overflow-x-auto">
-      <table className={cn("w-full min-w-[560px] text-left text-sm", className)}>{children}</table>
+    <div className="-mx-px overflow-x-auto overscroll-x-contain [scrollbar-width:thin]">
+      <table className={cn("w-full min-w-[36rem] text-left text-sm", className)}>{children}</table>
     </div>
   );
 }

@@ -38,6 +38,8 @@ describe("decideRoute", () => {
     expect(decideRoute(vercel, "/shops", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops" });
     expect(decideRoute(vercel, "/s/demo-mart/login", vercel)).toEqual({ kind: "rewrite", pathname: "/shop/login" });
     expect(decideRoute(vercel, "/shops/3", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops/3" });
+    expect(decideRoute(vercel, "/support", vercel)).toEqual({ kind: "rewrite", pathname: "/shop" });
+    expect(decideRoute(vercel, "/support/pos", vercel)).toEqual({ kind: "rewrite", pathname: "/shop/pos" });
   });
 });
 

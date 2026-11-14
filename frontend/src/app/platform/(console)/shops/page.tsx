@@ -54,12 +54,12 @@ function Shops() {
         }
       />
       <Panel padded={false}>
-        <div className="flex flex-wrap gap-2 border-b border-line p-3">
-          <div className="relative min-w-52 flex-1">
+        <div className="flex flex-col gap-2 border-b border-line p-3 sm:flex-row sm:flex-wrap">
+          <div className="relative w-full min-w-0 sm:min-w-52 sm:flex-1">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-faint" aria-hidden />
             <Input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder="Name, code, owner or phone" className="pl-9" aria-label="Search shops" />
           </div>
-          <Select value={type} onChange={(e) => { setType(e.target.value); setPage(0); }} className="w-auto" aria-label="Shop type">
+          <Select value={type} onChange={(e) => { setType(e.target.value); setPage(0); }} className="w-full sm:w-auto" aria-label="Shop type">
             <option value="">All types</option>
             {types.data?.map((t) => (
               <option key={t.key} value={t.key}>
@@ -67,7 +67,7 @@ function Shops() {
               </option>
             ))}
           </Select>
-          <Select value={plan} onChange={(e) => { setPlan(e.target.value); setPage(0); }} className="w-auto" aria-label="Plan">
+          <Select value={plan} onChange={(e) => { setPlan(e.target.value); setPage(0); }} className="w-full sm:w-auto sm:min-w-[8.5rem]" aria-label="Plan">
             <option value="">All plans</option>
             {plans.data?.map((p) => (
               <option key={p.key} value={p.key}>
@@ -75,7 +75,7 @@ function Shops() {
               </option>
             ))}
           </Select>
-          <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(0); }} className="w-auto" aria-label="Status">
+          <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(0); }} className="w-full sm:w-auto sm:min-w-[8.5rem]" aria-label="Status">
             <option value="">All statuses</option>
             {["TRIAL", "ACTIVE", "GRACE", "READ_ONLY", "SUSPENDED", "CLOSED"].map((s) => (
               <option key={s} value={s}>

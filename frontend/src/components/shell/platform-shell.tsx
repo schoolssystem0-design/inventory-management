@@ -142,7 +142,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         )}
-        <main className="mx-auto max-w-6xl px-4 pt-6 pb-16 sm:px-6">{children}</main>
+        <main className="mx-auto w-full max-w-6xl px-4 pt-4 pb-[max(5rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-6">
+          {children}
+        </main>
       </div>
     </PlatformCtx.Provider>
   );

@@ -66,6 +66,9 @@ export function decideRoute(host: string, pathname: string, root = rootDomain())
     if (PLATFORM_APEX_PATH.test(pathname)) {
       return { kind: "rewrite", pathname: `/platform${pathname}` };
     }
+    if (pathname === "/support" || pathname.startsWith("/support/")) {
+      return { kind: "rewrite", pathname: "/shop" + pathname.slice("/support".length) };
+    }
   }
 
   if (INTERNAL.some((p) => pathname === p || pathname.startsWith(p + "/"))) return { kind: "notFound" };
@@ -101,6 +104,8 @@ export function shopBase(): string {
   if (typeof window === "undefined") return "";
   if (areaOf(window.location.host).kind === "platform") return "/support";
   if (usePathBasedRouting()) {
+    const path = window.location.pathname;
+    if (path === "/support" || path.startsWith("/support/")) return "/support";
     const code = currentShopCode();
     if (code) return `/s/${code}`;
   }

@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import * as React from "react";
 import { BRAND_ASSETS } from "@/lib/brand";
 
@@ -21,10 +22,15 @@ export function AuthCard({
 }) {
   const mark = logo ?? BRAND_ASSETS.icon;
   return (
-    <main className="flex min-h-dvh items-center justify-center p-4">
+    <main className="flex min-h-dvh min-h-svh w-full items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-sm">
-        <div className="glass p-6">
-          <div className="mb-6 flex items-center gap-3">
+        <div className="glass p-5 sm:p-6">
+          <div
+            className={cn(
+              "mb-6 flex gap-3",
+              logoWide ? "flex-col items-start sm:flex-row sm:items-center" : "items-center",
+            )}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={mark}
