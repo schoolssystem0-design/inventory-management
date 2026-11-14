@@ -13,6 +13,7 @@ import { Badge, DetailList, ErrorState, PageHeader, Panel, Skeleton, Tabs, statu
 import { ImportResultView } from "@/features/catalog/import-result";
 import { ApiError, api, errorMessage, type Schemas } from "@/lib/api/client";
 import { date, dateTime, label, money } from "@/lib/format";
+import { consoleHref } from "@/lib/routing";
 import { ShopUsersTab } from "./shop-users-tab";
 
 type Profile = Schemas["ShopProfile"];
@@ -46,7 +47,7 @@ export default function ShopProfilePage() {
   return (
     <>
       <PageHeader
-        back={{ href: "/shops", label: "Shops" }}
+        back={{ href: consoleHref("/shops"), label: "Shops" }}
         title={
           <span className="flex flex-wrap items-center gap-3">
             {p.name} <Badge tone={statusTone(p.status)}>{label(p.status)}</Badge>

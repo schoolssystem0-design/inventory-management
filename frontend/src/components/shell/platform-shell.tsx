@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { Skeleton } from "@/components/ui/layout";
 import { ApiError, api, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { consoleHref } from "@/lib/routing";
 
 type Me = Schemas["PlatformMe"];
 
@@ -78,7 +79,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       {items.map((item) => (
         <Link
           key={item.href}
-          href={item.href}
+          href={consoleHref(item.href)}
           aria-current={active === item.href ? "page" : undefined}
           onClick={() => setOpen(false)}
           className={cn(

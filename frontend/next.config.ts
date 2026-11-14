@@ -1,5 +1,28 @@
 import type { NextConfig } from "next";
 
+function pathBasedRewrites(): { source: string; destination: string }[] {
+  const root = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "")
+    .replace(/^https?:\/\//, "")
+    .replace(/:\d+$/, "")
+    .toLowerCase();
+  const pathBased = process.env.NEXT_PUBLIC_PATH_ROUTING === "1" || root.endsWith(".vercel.app");
+  if (!pathBased) return [];
+  const platform = (p: string) => ({ source: p, destination: `/platform${p === "/" ? "" : p}` });
+  return [
+    { source: "/login", destination: "/platform/login" },
+    platform("/shops"),
+    { source: "/shops/:path*", destination: "/platform/shops/:path*" },
+    platform("/types"),
+    platform("/plans"),
+    platform("/users"),
+    { source: "/users/:path*", destination: "/platform/users/:path*" },
+    platform("/settings"),
+    platform("/audit"),
+    { source: "/s/:code", destination: "/shop" },
+    { source: "/s/:code/:path*", destination: "/shop/:path*" },
+  ];
+}
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
@@ -25,6 +48,9 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async rewrites() {
+    return { beforeFiles: pathBasedRewrites() };
   },
 };
 

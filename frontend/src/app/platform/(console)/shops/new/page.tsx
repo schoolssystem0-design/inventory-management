@@ -11,7 +11,7 @@ import { AmountInput, Checkbox, Field, Input, Select, Textarea } from "@/compone
 import { PageHeader, Panel } from "@/components/ui/layout";
 import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { money, plural } from "@/lib/format";
-import { rewriteLegacyShopLink, rootDomain, stripPort, usePathBasedRouting } from "@/lib/routing";
+import { consoleHref, rewriteLegacyShopLink, rootDomain, stripPort, usePathBasedRouting } from "@/lib/routing";
 
 type NewShop = Schemas["NewShop"];
 type Created = Schemas["ShopCreated"];
@@ -149,7 +149,7 @@ export default function NewShopPage() {
             </div>
             <p className="text-muted">Switched on: {created.modules.map(labelOf).join(", ") || "core features only"}</p>
             <div className="flex gap-2">
-              <Link href={`/shops/${created.shopId}`} className="font-semibold text-aqua hover:underline">
+              <Link href={consoleHref(`/shops/${created.shopId}`)} className="font-semibold text-aqua hover:underline">
                 Open the shop&apos;s page →
               </Link>
             </div>

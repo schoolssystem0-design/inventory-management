@@ -150,3 +150,16 @@ export function platformUrl(path = "/") {
   return `${protocol}//admin.${rootDomain()}${port ? ":" + port : ""}${normalized || "/"}`;
 }
 
+/**
+ * Platform console links for {@link Link} / {@link useRouter}. On path-based routing (e.g. vercel.app) uses real
+ * `/platform/...` app routes so client navigation does not 404; the browser bar can still show `/shops/...` via rewrites.
+ */
+export function consoleHref(path: string): string {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  if (usePathBasedRouting()) {
+    if (normalized === "/login" || normalized.startsWith("/login?")) return normalized;
+    return `/platform${normalized === "/" ? "" : normalized}`;
+  }
+  return normalized;
+}
+

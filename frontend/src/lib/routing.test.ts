@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { areaOf, decideRoute, rewriteLegacyShopLink } from "./routing";
+import { areaOf, consoleHref, decideRoute, rewriteLegacyShopLink } from "./routing";
 
 const ROOT = "selectcodepos.com";
 
@@ -37,6 +37,17 @@ describe("decideRoute", () => {
     expect(decideRoute(vercel, "/platform/shops", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops" });
     expect(decideRoute(vercel, "/shops", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops" });
     expect(decideRoute(vercel, "/s/demo-mart/login", vercel)).toEqual({ kind: "rewrite", pathname: "/shop/login" });
+    expect(decideRoute(vercel, "/shops/3", vercel)).toEqual({ kind: "rewrite", pathname: "/platform/shops/3" });
+  });
+});
+
+describe("consoleHref", () => {
+  it("uses /platform routes on vercel.app for client navigation", () => {
+    const prev = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN = "inventory-pos-frontend.vercel.app";
+    expect(consoleHref("/shops/3")).toBe("/platform/shops/3");
+    expect(consoleHref("/login")).toBe("/login");
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN = prev;
   });
 });
 

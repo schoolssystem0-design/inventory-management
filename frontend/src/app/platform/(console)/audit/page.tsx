@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as React from "react";
 import { PageHeader, Pager, Panel, Table, TableSkeleton, Td, Th } from "@/components/ui/layout";
 import { api, type Schemas } from "@/lib/api/client";
+import { consoleHref } from "@/lib/routing";
 import { dateTime, label } from "@/lib/format";
 
 /** PLT-27: everything platform users did, newest first. */
@@ -39,7 +40,7 @@ export default function PlatformAuditPage() {
                     <Td className="whitespace-nowrap text-muted">{dateTime(a.at)}</Td>
                     <Td>{a.actorName ?? "System"}</Td>
                     <Td>{label(a.action)}</Td>
-                    <Td>{a.shopId ? <Link href={`/shops/${a.shopId}`} className="font-mono text-aqua hover:underline">{a.shopCode}</Link> : "—"}</Td>
+                    <Td>{a.shopId ? <Link href={consoleHref(`/shops/${a.shopId}`)} className="font-mono text-aqua hover:underline">{a.shopCode}</Link> : "—"}</Td>
                     <Td className="max-w-sm truncate font-mono text-xs text-faint" title={a.details ?? ""}>
                       {a.details}
                     </Td>

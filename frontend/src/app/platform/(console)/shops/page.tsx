@@ -12,6 +12,7 @@ import { Input, Select } from "@/components/ui/fields";
 import { Badge, Empty, PageHeader, Pager, Panel, Table, TableSkeleton, Td, Th, statusTone } from "@/components/ui/layout";
 import { api, type Schemas } from "@/lib/api/client";
 import { date, label } from "@/lib/format";
+import { consoleHref } from "@/lib/routing";
 
 /** PLT-07: every shop, searchable by name, code, owner or phone and filtered by type, plan, status and city. */
 export default function ShopsPage() {
@@ -46,7 +47,7 @@ function Shops() {
         description={shops.data ? `${shops.data.total} shops` : undefined}
         actions={
           cap("platform.shops.create") && (
-            <LinkButton href="/shops/new">
+            <LinkButton href={consoleHref("/shops/new")}>
               <Plus /> New shop
             </LinkButton>
           )
@@ -104,7 +105,7 @@ function Shops() {
                 {shops.data!.items.map((s) => (
                   <tr key={s.id} className="hover:bg-raised/40">
                     <Td>
-                      <Link href={`/shops/${s.id}`} className="font-medium hover:text-aqua">
+                      <Link href={consoleHref(`/shops/${s.id}`)} className="font-medium hover:text-aqua">
                         {s.name}
                       </Link>
                       <p className="font-mono text-xs text-faint">
