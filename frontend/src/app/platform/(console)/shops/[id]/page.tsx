@@ -1,13 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { KeyRound, LifeBuoy } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 import { useCapability } from "@/components/shell/platform-shell";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog, Dialog } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/dialog";
 import { AmountInput, Field, Input, Select, Switch, Textarea } from "@/components/ui/fields";
 import { Badge, DetailList, ErrorState, PageHeader, Panel, Skeleton, Tabs, statusTone } from "@/components/ui/layout";
 import { ImportResultView } from "@/features/catalog/import-result";
@@ -30,15 +30,6 @@ export default function ShopProfilePage() {
     client.setQueryData(["platform-shop", id], p);
     client.invalidateQueries({ queryKey: ["platform-shops"] });
   };
-  const [supportReason, setSupportReason] = React.useState<string | null>(null);
-  const support = useMutation({
-    mutationFn: (reason: string) => api("/platform/support-session", { method: "POST", body: { shopId: Number(id), reason } }),
-    onSuccess: () => {
-      window.location.href = window.location.origin + "/support";
-    },
-    onError: (e) => toast.error(errorMessage(e)),
-  });
-
   if (profile.isPending) return <Skeleton className="h-96" />;
   if (profile.isError) return <ErrorState message={errorMessage(profile.error)} onRetry={() => profile.refetch()} />;
   const p = profile.data;
@@ -58,13 +49,6 @@ export default function ShopProfilePage() {
             <span className="font-mono">{p.code}</span> · {p.typeName}
             {p.statusReason && <span className="ml-2 text-warn">({p.statusReason})</span>}
           </span>
-        }
-        actions={
-          cap("platform.support") ? (
-            <Button onClick={() => setSupportReason("")}>
-              <LifeBuoy /> Open as support
-            </Button>
-          ) : undefined
         }
       />
       <Tabs
@@ -94,24 +78,6 @@ export default function ShopProfilePage() {
       {tab === "users" && <ShopUsersTab shopId={p.id} canManage={cap("platform.shops.manage")} />}
       {tab === "import" && <ImportForClient shopId={p.id} />}
       {tab === "danger" && <Danger p={p} onSaved={update} cap={cap} />}
-
-      {supportReason !== null && (
-        <Dialog
-          open
-          onOpenChange={(o) => !o && setSupportReason(null)}
-          title={`Open ${p.name} as support`}
-          description="You can look at everything. To make changes, the owner gives you a one-hour code. Everything you do is recorded."
-          footer={
-            <Button onClick={() => support.mutate(supportReason)} loading={support.isPending} disabled={!supportReason.trim()}>
-              Open shop
-            </Button>
-          }
-        >
-          <Field label="Why are you opening this shop?">
-            <Input value={supportReason} onChange={(e) => setSupportReason(e.target.value)} autoFocus placeholder="Owner asked for help with the import" />
-          </Field>
-        </Dialog>
-      )}
     </>
   );
 }
