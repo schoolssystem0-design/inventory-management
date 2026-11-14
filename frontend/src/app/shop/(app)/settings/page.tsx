@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AmountInput, Checkbox, Field, Input, Select, Switch, Textarea } from "@/components/ui/fields";
 import { Badge, ErrorState, PageHeader, Pager, Panel, Skeleton, Table, TableSkeleton, Tabs, Td, Th } from "@/components/ui/layout";
 import { ApiError, api, errorMessage, fileUrl, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { dateTime, label } from "@/lib/format";
 import { P, useCan, useFeature, useRefreshContext, useShop } from "@/lib/shop-context";
 
@@ -521,7 +522,7 @@ function FeaturesTab({ edit }: { edit: boolean }) {
                   <p className="text-xs text-faint">
                     {m.standard ? "Standard for this shop type" : "Optional"}
                     {m.phase > 1 && " · arrives in a later release"}
-                    {locked && " · changed by SelectCode support"}
+                    {locked && ` · changed by ${BRAND.support()}`}
                     {blocked && " · not in your plan"}
                   </p>
                 </div>
@@ -544,7 +545,7 @@ function SupportTab() {
     onError: (e) => toast.error(errorMessage(e)),
   });
   return (
-    <Panel title="Let SelectCode support make changes" description="Support can always look; changes need this code from you">
+    <Panel title={`Let ${BRAND.support()} make changes`} description="Support can always look; changes need this code from you">
       <div className="max-w-md space-y-4 text-sm text-muted">
         <p>Give this code to the support person only if you asked them for help. It works once, for one hour.</p>
         {code ? (

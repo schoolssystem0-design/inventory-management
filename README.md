@@ -1,4 +1,4 @@
-# SelectCode POS
+# Tirvex Tech POS
 
 Multi-shop inventory and point-of-sale platform. The super admin creates shops for clients and picks each shop's
 type (mobile shop, super store, medical store, fast food and 7 more), which decides the features it gets.

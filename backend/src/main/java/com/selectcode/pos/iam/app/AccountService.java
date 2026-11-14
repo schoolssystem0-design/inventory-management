@@ -218,7 +218,8 @@ public class AccountService {
 		String secret = Totp.newSecret();
 		session.setAttribute(PENDING_TOTP, new PendingTotp(userId, secret, clock.instant().plus(Duration.ofMinutes(10))));
 		ActorPrincipal actor = CurrentActor.require();
-		return new TotpEnrolment(secret, Totp.otpauthUri("SelectCode POS", actor.loginName() + "@" + actor.shopCode(), secret));
+		return new TotpEnrolment(secret,
+				Totp.otpauthUri(com.selectcode.pos.shared.Brand.PRODUCT, actor.loginName() + "@" + actor.shopCode(), secret));
 	}
 
 	/** Step 2: the first code proves the app was set up; from now on sign-in asks for a code. */

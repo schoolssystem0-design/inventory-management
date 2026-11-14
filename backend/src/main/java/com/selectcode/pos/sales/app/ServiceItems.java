@@ -24,7 +24,7 @@ final class ServiceItems {
 			.orElseThrow(() -> new IllegalStateException("The shop has no units"));
 		return jdbc.queryForObject("""
 				insert into product (shop_id, sku, name, unit_id, kind, price, description)
-				values (?, ?, ?, ?, 'SERVICE', 0, 'Made by SelectCode POS for billing; keep the SKU') returning id""",
+				values (?, ?, ?, ?, 'SERVICE', 0, 'Made by Tirvex Tech POS for billing; keep the SKU') returning id""",
 				Long.class, TenantContext.requireShopId(), sku, name, unit);
 	}
 }

@@ -76,7 +76,7 @@ public class SignInService {
 		}
 		if (!shop.canSignIn()) {
 			throw new ApiException(HttpStatus.LOCKED, "shop_suspended",
-					"This shop's account is suspended. Please contact SelectCode support.");
+					"This shop's account is suspended. Please contact " + com.selectcode.pos.shared.Brand.support() + ".");
 		}
 		// The tenant is set before the transaction starts, so the connection gets the shop's RLS context.
 		Object outcome = TenantContext.callAsShop(shop.id(), () -> transaction.execute(tx -> attempt(shop, attempt)));

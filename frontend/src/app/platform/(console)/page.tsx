@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge, ErrorState, PageHeader, Panel, Skeleton, StatCard, statusTone } from "@/components/ui/layout";
 import { api, errorMessage, type Schemas } from "@/lib/api/client";
 import { date, money, plural } from "@/lib/format";
+import { BRAND } from "@/lib/brand";
 import { consoleHref } from "@/lib/routing";
 
 /** PLT-04: shops by status, type and city, recurring revenue, overdue, and trials or payments due this week. */
@@ -17,7 +18,7 @@ export default function OverviewPage() {
   const max = Math.max(1, ...o.byType.map((t) => t.count));
   return (
     <>
-      <PageHeader title="Overview" description="All shops on SelectCode POS" />
+      <PageHeader title="Overview" description={`All shops on ${BRAND.product}`} />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Shops" value={o.totalShops} hint={`${o.newShopsThisMonth} new this month`} href={consoleHref("/shops")} tone="aqua" />
         <StatCard

@@ -5,6 +5,7 @@
  * driver), which is how RJ11 drawers work with every common thermal printer.
  */
 import type { Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { date, dateTime, money, qty } from "@/lib/format";
 import { addMoney } from "@/lib/money";
 
@@ -139,7 +140,7 @@ ${r.showSavings && r.savings && r.savings !== "0.00" ? `<hr><div class="c">${L("
 ${r.showBarcode ? `<div class="c" style="margin-top:6px;font-size:1.4em;letter-spacing:2px">*${esc(s.number)}*</div>` : ""}
 ${r.returnPolicy ? `<hr><div class="c muted">${esc(r.returnPolicy)}</div>` : ""}
 <div class="c" style="margin-top:6px">${r.footer ? esc(r.footer) : L("Thank you", "thanks")}</div>
-<div class="c muted" style="margin-top:4px">SelectCode POS</div>
+<div class="c muted" style="margin-top:4px">${esc(BRAND.product)}</div>
 </div></body></html>`;
 }
 

@@ -8,6 +8,7 @@ import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { platformUrl } from "@/lib/routing";
 
 type LoginResponse = Schemas["PlatformLoginResponse"];
@@ -62,7 +63,7 @@ export default function PlatformLoginPage() {
   }
 
   return (
-    <AuthCard title="SelectCode platform" subtitle="Staff sign-in" footer="Shop staff: use your shop's own address">
+    <AuthCard title={BRAND.platformLoginTitle} subtitle="Staff sign-in" footer="Shop staff: use your shop's own address">
       <form onSubmit={submit} className="space-y-4">
         {!enrol ? (
           <>

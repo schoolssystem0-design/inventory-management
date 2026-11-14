@@ -8,6 +8,7 @@ import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api, fileUrl, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { currentShopCode, shopUrl } from "@/lib/routing";
 import { useBrowserValue } from "@/lib/use-browser-value";
 
@@ -68,7 +69,7 @@ export default function ShopLoginPage() {
       title={shop.data?.name ?? "Sign in"}
       subtitle="Sign in to your shop"
       logo={fileUrl(shop.data?.logoFileId)}
-      footer={<span>SelectCode POS</span>}
+      footer={<span>{BRAND.product}</span>}
     >
       {shop.data?.message && (
         <p className={`mb-4 rounded-lg px-3 py-2 text-sm ${blocked ? "bg-bad/10 text-bad" : "bg-warn/10 text-warn"}`}>

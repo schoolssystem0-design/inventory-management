@@ -139,7 +139,7 @@ public final class Permissions {
 		Map<String, Map<String, String>> c = new LinkedHashMap<>();
 		c.put("Shop setup", ordered(SETTINGS_VIEW, "View settings", SETTINGS_EDIT, "Change settings", BRANCHES_MANAGE,
 				"Manage branches and tills", SUBSCRIPTION_VIEW, "View subscription", SUPPORT_APPROVE,
-				"Allow SelectCode support to make changes"));
+				"Allow Tirvex Tech support to make changes"));
 		c.put("Users", ordered(USERS_VIEW, "View users", USERS_MANAGE, "Add and change users", ROLES_MANAGE,
 				"Manage roles", AUDIT_VIEW, "View activity history", LOGIN_HISTORY_VIEW, "View login history"));
 		c.put("Products", ordered(CATALOG_VIEW, "View products", CATALOG_MANAGE, "Add and change products",

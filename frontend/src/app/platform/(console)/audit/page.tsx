@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as React from "react";
 import { PageHeader, Pager, Panel, Table, TableSkeleton, Td, Th } from "@/components/ui/layout";
 import { api, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { consoleHref } from "@/lib/routing";
 import { dateTime, label } from "@/lib/format";
 
@@ -18,7 +19,7 @@ export default function PlatformAuditPage() {
   });
   return (
     <>
-      <PageHeader title="Audit log" description="Every action by SelectCode staff" />
+      <PageHeader title="Audit log" description={`Every action by ${BRAND.company} staff`} />
       <Panel padded={false}>
         {audit.isPending ? (
           <TableSkeleton />

@@ -122,7 +122,7 @@ public class ShopContextService {
 		}
 		else {
 			user = new UserInfo(actor.actorId(), "PLATFORM", actor.loginName(), actor.displayName(), false,
-					"SelectCode support", true, false, false, false);
+					com.selectcode.pos.shared.Brand.support(), true, false, false, false);
 			branches = jdbc.query(branchSql, (rs, i) -> branch(rs));
 		}
 
@@ -153,7 +153,7 @@ public class ShopContextService {
 		Long openSupport = jdbc.queryForObject(
 				"select count(*) from support_session where shop_id = ? and ended_at is null", Long.class, shopId);
 		if (openSupport != null && openSupport > 0) {
-			banners.add(new Banner("SUPPORT", "SelectCode support is viewing this shop", null));
+			banners.add(new Banner("SUPPORT", com.selectcode.pos.shared.Brand.support() + " is viewing this shop", null));
 		}
 		LocalDate today = LocalDate.now(clock.withZone(ShopAdminService.ZONE));
 		String status = shopInfo.status();
@@ -197,7 +197,7 @@ public class ShopContextService {
 			.orElseThrow();
 		if (!(state.standard() || state.offered()) || !module.ownerCanToggle()) {
 			throw ApiException.forbidden("module_locked",
-					"\"" + module.label() + "\" can only be changed by SelectCode support");
+					"\"" + module.label() + "\" can only be changed by " + com.selectcode.pos.shared.Brand.support());
 		}
 		if (enabled && !state.allowedByPlan()) {
 			throw new ApiException(org.springframework.http.HttpStatus.PAYMENT_REQUIRED, "plan_limit",

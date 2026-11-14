@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { Skeleton } from "@/components/ui/layout";
 import { ApiError, api, resetCsrfToken, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { consoleHref } from "@/lib/routing";
 
 type Me = Schemas["PlatformMe"];
@@ -99,7 +100,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
         <Building className="size-5" aria-hidden />
       </span>
       <div>
-        <p className="text-sm font-semibold">SelectCode POS</p>
+        <p className="text-sm font-semibold">{BRAND.product}</p>
         <p className="text-xs text-aqua">Platform</p>
       </div>
     </div>
@@ -128,7 +129,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           <button className="rounded-lg p-2 text-muted hover:bg-raised" aria-label="Open menu" onClick={() => setOpen(true)}>
             <Menu className="size-5" />
           </button>
-          <p className="font-semibold">SelectCode Platform</p>
+          <p className="font-semibold">{BRAND.platform}</p>
         </header>
         {open && (
           <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">

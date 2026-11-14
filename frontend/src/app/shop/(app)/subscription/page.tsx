@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Status } from "@/components/status";
 import { Empty, ErrorState, PageHeader, Panel, StatCard, Table, TableSkeleton, Td, Th } from "@/components/ui/layout";
 import { api, errorMessage, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { date, label, money } from "@/lib/format";
 import { useShop } from "@/lib/shop-context";
 
@@ -35,7 +36,11 @@ export default function SubscriptionPage() {
         <StatCard label="Branches" value={of(usage.branches, limits.branches)} />
         <StatCard label="Tills" value={of(usage.tills, limits.tills)} />
       </div>
-      <Panel padded={false} title="Invoices" description="Pay by bank transfer, JazzCash or Easypaisa to SelectCode; we mark it paid and send a receipt.">
+      <Panel
+        padded={false}
+        title="Invoices"
+        description={`Pay by bank transfer, JazzCash or Easypaisa to ${BRAND.company}; we mark it paid and send a receipt.`}
+      >
         {invoices.isPending ? (
           <TableSkeleton />
         ) : invoices.isError ? (

@@ -26,7 +26,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Service
 public class PlatformAuthService {
 
-	public static final String TOTP_ISSUER = "SelectCode POS Platform";
+	public static final String TOTP_ISSUER = com.selectcode.pos.shared.Brand.PLATFORM;
 
 	static final String PENDING_ENROLMENT = "pos.platform.pendingEnrolment";
 

@@ -395,9 +395,10 @@ public class BillingService {
 			}
 			BigDecimal balance = ((BigDecimal) inv.get("total")).subtract((BigDecimal) inv.get("paid"));
 			String text = "OVERDUE".equals(kind)
-					? "Your SelectCode POS subscription (invoice " + inv.get("number") + ", Rs " + balance.toPlainString()
-							+ ") is overdue. Please pay to avoid read-only mode."
-					: "Your SelectCode POS subscription of Rs " + balance.toPlainString() + " (invoice " + inv.get("number")
+					? "Your " + com.selectcode.pos.shared.Brand.PRODUCT + " subscription (invoice " + inv.get("number") + ", Rs "
+							+ balance.toPlainString() + ") is overdue. Please pay to avoid read-only mode."
+					: "Your " + com.selectcode.pos.shared.Brand.PRODUCT + " subscription of Rs " + balance.toPlainString()
+							+ " (invoice " + inv.get("number")
 							+ ") is due on " + due + ".";
 			inShop(shopId, () -> {
 				notifier.email(shopEmail, "subscription_due", "Subscription " + ("OVERDUE".equals(kind) ? "overdue" : "due"),

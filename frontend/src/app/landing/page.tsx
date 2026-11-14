@@ -4,6 +4,7 @@ import { Store } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
+import { BRAND } from "@/lib/brand";
 import { platformUrl, shopUrl } from "@/lib/routing";
 import { useBrowserValue } from "@/lib/use-browser-value";
 
@@ -21,7 +22,7 @@ export default function LandingPage() {
             <Store className="size-6" aria-hidden />
           </span>
           <div>
-            <h1 className="text-lg font-bold">SelectCode POS</h1>
+            <h1 className="text-lg font-bold">{BRAND.product}</h1>
             <p className="text-sm text-muted">Go to your shop</p>
           </div>
         </div>
@@ -40,7 +41,7 @@ export default function LandingPage() {
           </Button>
         </form>
         <p className="mt-6 text-center text-xs text-faint">
-          SelectCode staff:{" "}
+          {BRAND.company} staff:{" "}
           <a className="text-aqua hover:underline" href={platformHref}>
             platform sign-in
           </a>

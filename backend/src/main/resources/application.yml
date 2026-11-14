@@ -62,7 +62,7 @@ app:
   path-routing: ${APP_PATH_ROUTING:false}
   mail:
     from: ${MAIL_FROM:}
-    from-name: ${MAIL_FROM_NAME:SelectCode POS}
+    from-name: ${MAIL_FROM_NAME:Tirvex Tech POS}
     # Email by HTTPS API instead of SMTP: brevo or resend, with MAIL_API_KEY
     provider: ${MAIL_PROVIDER:}
     api-key: ${MAIL_API_KEY:}

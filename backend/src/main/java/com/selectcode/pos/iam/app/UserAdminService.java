@@ -212,7 +212,8 @@ public class UserAdminService {
 	public UserView setActive(long id, boolean active) {
 		AppUser user = find(id);
 		if (user.isOwner()) {
-			throw ApiException.rule("owner_status", "The owner cannot be deactivated; SelectCode support can change the owner");
+			throw ApiException.rule("owner_status",
+					"The owner cannot be deactivated; " + com.selectcode.pos.shared.Brand.support() + " can change the owner");
 		}
 		if (active && user.getStatus() == AppUser.Status.INACTIVE) {
 			limits.check(PlanLimits.Limit.USERS, users.countByStatus(AppUser.Status.ACTIVE), 1);
@@ -352,7 +353,8 @@ public class UserAdminService {
 		String link = accounts.setupLink(shop.code(), issued.token());
 		boolean emailed = false;
 		if (user.getEmail() != null) {
-			emailed = messages.send(OutgoingMessage.email(user.getEmail(), "Set up your SelectCode POS account", """
+			emailed = messages.send(OutgoingMessage.email(user.getEmail(),
+					"Set up your " + com.selectcode.pos.shared.Brand.PRODUCT + " account", """
 					Hello %s,
 
 					An account has been created for you at %s.
@@ -379,7 +381,8 @@ public class UserAdminService {
 		}
 		Role role = roles.findById(roleId).orElseThrow(() -> ApiException.field("roleId", "not_found", "Role not found"));
 		if (RoleTemplates.OWNER.equals(role.getSystemKey())) {
-			throw ApiException.field("roleId", "owner_role", "There is one owner per shop; SelectCode support can change it");
+			throw ApiException.field("roleId", "owner_role",
+					"There is one owner per shop; " + com.selectcode.pos.shared.Brand.support() + " can change it");
 		}
 		return role;
 	}

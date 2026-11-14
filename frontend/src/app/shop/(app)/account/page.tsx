@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { Badge, DetailList, PageHeader, Panel } from "@/components/ui/layout";
 import { ApiError, api, errorMessage, type Schemas } from "@/lib/api/client";
+import { BRAND } from "@/lib/brand";
 import { useRefreshContext, useShop } from "@/lib/shop-context";
 
 /** The signed-in user's own account: password, approval PIN, authenticator app (ACC-08..10). */
@@ -37,7 +38,7 @@ export default function AccountPage() {
           </>
         ) : (
           <Panel title="Support session">
-            <p className="text-sm text-muted">You are signed in as SelectCode support. Your own account is managed on the platform.</p>
+            <p className="text-sm text-muted">You are signed in as {BRAND.support()}. Your own account is managed on the platform.</p>
           </Panel>
         )}
       </div>

@@ -34,7 +34,7 @@ class MessagingConfig {
 			return devOutbox.getObject();
 		}
 		String from = environment.getProperty("app.mail.from", "");
-		String fromName = environment.getProperty("app.mail.from-name", "SelectCode POS");
+		String fromName = environment.getProperty("app.mail.from-name", com.selectcode.pos.shared.Brand.PRODUCT);
 		String provider = environment.getProperty("app.mail.provider", "").trim().toLowerCase();
 		EmailTransport transport = null;
 		if (("brevo".equals(provider) || "resend".equals(provider))

@@ -69,7 +69,7 @@ class ShopContextController {
 				() -> jdbc.queryForList("select logo_file_id from shop_settings where shop_id = ?", Long.class, shop.id()));
 		Long logo = logos.isEmpty() ? null : logos.getFirst();
 		String message = switch (shop.status()) {
-			case "SUSPENDED", "CLOSED" -> "This shop's account is not active. Please contact SelectCode support.";
+			case "SUSPENDED", "CLOSED" -> "This shop's account is not active. Please contact " + com.selectcode.pos.shared.Brand.support() + ".";
 			case "READ_ONLY" -> "The subscription is overdue: you can sign in to view and export.";
 			default -> null;
 		};

@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 /*
- * SelectCode POS design: the Mobile Shop System's graphite look (docs/architecture/CODING-STANDARDS.md §6).
+ * Tirvex Tech POS design: the Mobile Shop System's graphite look (docs/architecture/CODING-STANDARDS.md §6).
  * One graphite ramp for surfaces and text, one aqua accent, meaning colours only for status.
  */
 @theme {

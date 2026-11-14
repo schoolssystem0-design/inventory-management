@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { BRAND } from "@/lib/brand";
 
 /** Installable app (HW-07): opens full screen from the desktop or home screen. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "SelectCode POS",
-    short_name: "POS",
+    name: BRAND.product,
+    short_name: "Tirvex POS",
     description: "Inventory and point of sale",
     start_url: "/",
     display: "standalone",
