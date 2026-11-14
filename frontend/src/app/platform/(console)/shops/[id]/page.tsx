@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, KeyRound, LifeBuoy } from "lucide-react";
+import { KeyRound, LifeBuoy } from "lucide-react";
 import { useParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -13,8 +13,7 @@ import { Badge, DetailList, ErrorState, PageHeader, Panel, Skeleton, Tabs, statu
 import { ImportResultView } from "@/features/catalog/import-result";
 import { ApiError, api, errorMessage, type Schemas } from "@/lib/api/client";
 import { date, dateTime, label, money } from "@/lib/format";
-import { consoleHref, rewriteLegacyShopLink } from "@/lib/routing";
-import { shopSignInUrl } from "@/lib/shop-public-href";
+import { consoleHref } from "@/lib/routing";
 import { ShopUsersTab } from "./shop-users-tab";
 
 type Profile = Schemas["ShopProfile"];
@@ -61,21 +60,11 @@ export default function ShopProfilePage() {
           </span>
         }
         actions={
-          <>
-            <a
-              href={shopSignInUrl(rewriteLegacyShopLink(p.shopUrl))}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-raised px-4 text-sm font-semibold hover:bg-[#2b2b2e]"
-            >
-              <ExternalLink className="size-4" /> Shop sign-in page
-            </a>
-            {cap("platform.support") && (
-              <Button onClick={() => setSupportReason("")}>
-                <LifeBuoy /> Open as support
-              </Button>
-            )}
-          </>
+          cap("platform.support") ? (
+            <Button onClick={() => setSupportReason("")}>
+              <LifeBuoy /> Open as support
+            </Button>
+          ) : undefined
         }
       />
       <Tabs
