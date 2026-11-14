@@ -10,11 +10,13 @@ import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api, fileUrl, resetCsrfToken, type Schemas } from "@/lib/api/client";
 import { BRAND } from "@/lib/brand";
 import { currentShopCode, shopUrl } from "@/lib/routing";
+import { useShopPublicHref } from "@/lib/shop-public-href";
 import { useBrowserValue } from "@/lib/use-browser-value";
 
 export default function ShopLoginPage() {
   const router = useRouter();
   const client = useQueryClient();
+  const shopHref = useShopPublicHref();
   const code = useBrowserValue(currentShopCode, null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -114,11 +116,17 @@ export default function ShopLoginPage() {
         <Button type="submit" className="w-full" loading={busy} disabled={!!blocked}>
           Sign in
         </Button>
-        <p className="text-center text-sm">
-          <Link href="/forgot-password" className="text-muted hover:text-aqua">
-            Forgot password?
-          </Link>
-        </p>
+        <div className="space-y-2 text-center text-sm">
+          <p>
+            <Link href={shopHref("/forgot-password")} className="font-medium text-aqua hover:underline">
+              Forgot or reset password
+            </Link>
+          </p>
+          <p className="text-xs text-faint">
+            First time signing in? Use the <strong className="font-normal text-muted">setup link</strong> from your welcome email. If it
+            expired, ask the shop owner or {BRAND.company} support for a new link.
+          </p>
+        </div>
       </form>
     </AuthCard>
   );

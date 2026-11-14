@@ -6,7 +6,7 @@ import { AuthCard, FormError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/fields";
 import { ApiError, api } from "@/lib/api/client";
-import { useShopHref } from "@/lib/shop-context";
+import { useShopPublicHref } from "@/lib/shop-public-href";
 
 export const PASSWORD_HINT = "At least 10 characters. A short phrase works well; avoid your username.";
 
@@ -24,7 +24,7 @@ export function PasswordForm({
   subtitle: string;
   done: string;
 }) {
-  const shopHref = useShopHref();
+  const shopHref = useShopPublicHref();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
