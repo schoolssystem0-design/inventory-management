@@ -182,7 +182,7 @@ public class PlatformAuthService {
 						Your sign-in code is: %s
 
 						It works for 10 minutes. If you did not try to sign in, ignore this email.
-						""".formatted(com.selectcode.pos.shared.Brand.company(), digits)));
+						""".formatted(com.selectcode.pos.shared.Brand.COMPANY, digits)));
 		if (!sent) {
 			session.removeAttribute(PENDING_EMAIL);
 			return new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "email_not_sent",
