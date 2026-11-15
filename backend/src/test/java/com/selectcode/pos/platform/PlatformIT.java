@@ -3,11 +3,9 @@ package com.selectcode.pos.platform;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.selectcode.pos.shared.security.Totp;
 import com.selectcode.pos.support.ApiClient;
 import com.selectcode.pos.support.IntegrationTest;
 import com.selectcode.pos.support.TestDatabase;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -22,25 +20,21 @@ class PlatformIT extends IntegrationTest {
 	// ------------------------------------------------------------------ sign-in
 
 	@Test
-	void firstSignInEnrolsTheAuthenticatorThenAlwaysAsksForACode() throws Exception {
+	void signInSendsAnEmailCodeThenAlwaysAsksForOne() throws Exception {
 		String email = unique("first") + "@selectcode.test";
 		TestDatabase.superuser().update("insert into platform_user (email, name, password_hash) values (?, 'Owner', ?)",
 				email, new BCryptPasswordEncoder(4).encode(PASSWORD));
 		ApiClient client = client();
-		var first = client.post("/api/v1/platform/auth/login",
-				"{\"email\":\"" + email + "\",\"password\":\"" + PASSWORD + "\"}").andExpect(status().isOk());
-		assertThat((Boolean) json(first, "$.enrolmentRequired")).isTrue();
-		String secret = json(first, "$.secret");
-		client.post("/api/v1/platform/auth/totp/enroll", "{\"code\":\"000000\"}").andExpect(status().isUnprocessableContent());
-		client.post("/api/v1/platform/auth/totp/enroll", "{\"code\":\"" + Totp.codeAt(secret, Instant.now()) + "\"}")
-			.andExpect(status().isOk());
+		client.platformLoginStep1(email, PASSWORD).andExpect(status().isUnauthorized());
+		String firstCode = latestPlatformEmailCode();
+		client.platformLogin(email, PASSWORD, firstCode).andExpect(status().isOk());
 		client.get("/api/v1/platform/auth/me").andExpect(status().isOk());
 
 		ApiClient again = client();
-		again.post("/api/v1/platform/auth/login", "{\"email\":\"" + email + "\",\"password\":\"" + PASSWORD + "\"}")
-			.andExpect(status().isUnauthorized());
-		again.platformLogin(email, "wrong-password-1", secret).andExpect(status().isUnauthorized());
-		again.platformLogin(email, PASSWORD, secret).andExpect(status().isOk());
+		again.platformLoginStep1(email, PASSWORD).andExpect(status().isUnauthorized());
+		String secondCode = latestPlatformEmailCode();
+		again.platformLogin(email, "wrong-password-1", secondCode).andExpect(status().isUnauthorized());
+		again.platformLogin(email, PASSWORD, secondCode).andExpect(status().isOk());
 	}
 
 	@Test

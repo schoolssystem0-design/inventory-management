@@ -77,7 +77,7 @@ import org.springframework.web.multipart.MultipartFile;
 class PlatformController {
 
 	record PlatformLoginRequest(@NotBlank @Size(max = 254) String email, @NotBlank @Size(max = 200) String password,
-			@Size(max = 10) String totpCode) {
+			@Size(max = 10) String totpCode, @Size(max = 10) String emailCode) {
 	}
 
 	/** {@code enrolmentRequired}: first sign-in; scan {@code otpauthUri} and send the first code to /totp/enroll. */
@@ -148,7 +148,7 @@ class PlatformController {
 	@PostMapping("/auth/login")
 	PlatformLoginResponse login(@Valid @RequestBody PlatformLoginRequest body, HttpServletRequest request,
 			HttpServletResponse response) {
-		var outcome = auth.signIn(body.email(), body.password(), body.totpCode(), request.getRemoteAddr(),
+		var outcome = auth.signIn(body.email(), body.password(), body.totpCode(), body.emailCode(), request.getRemoteAddr(),
 				request.getHeader(HttpHeaders.USER_AGENT), request.getSession());
 		return switch (outcome) {
 			case PlatformAuthService.Outcome.EnrolmentRequired e -> new PlatformLoginResponse(true, e.secret(), e.otpauthUri(), null);

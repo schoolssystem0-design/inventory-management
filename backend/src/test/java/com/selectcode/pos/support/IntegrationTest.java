@@ -120,16 +120,29 @@ public abstract class IntegrationTest {
 				ENCODER.encode(PASSWORD));
 	}
 
-	/** A platform user with an enrolled authenticator, signed in. */
+	/** A platform user signed in (email code mode in tests, or TOTP when configured). */
 	protected ApiClient platformUser(String role) throws Exception {
 		String email = unique("p") + "@selectcode.test";
-		String secret = Totp.newSecret();
-		db().update("insert into platform_user (email, name, role, password_hash, totp_secret) values (?, ?, ?, ?, ?)",
-				email, "Platform " + role, role, ENCODER.encode(PASSWORD), secret);
+		db().update("insert into platform_user (email, name, role, password_hash) values (?, ?, ?, ?)", email,
+				"Platform " + role, role, ENCODER.encode(PASSWORD));
 		ApiClient client = client();
-		client.platformLogin(email, PASSWORD, secret).andExpect(
+		client.platformLoginStep1(email, PASSWORD).andExpect(
+				org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isUnauthorized());
+		String code = latestPlatformEmailCode();
+		client.platformLogin(email, PASSWORD, code).andExpect(
 				org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 		return client;
+	}
+
+	protected String latestPlatformEmailCode() {
+		java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("Your sign-in code is:\\s*(\\d{6})");
+		for (var entry : outbox.entries()) {
+			var m = pattern.matcher(entry.message().body());
+			if (m.find()) {
+				return m.group(1);
+			}
+		}
+		throw new IllegalStateException("No platform sign-in code in the dev outbox");
 	}
 
 	protected static <T> T json(ResultActions result, String path) throws Exception {

@@ -81,6 +81,9 @@ app:
     # Runtime role created/updated after each migration (AppDatabaseRoleCallback)
     app-user: ${DB_APP_USER:pos_app_login}
     app-password: ${DB_APP_PASSWORD:}
+  platform:
+    # Platform staff 2FA: email (sign-in code by email), totp (authenticator app), or off (password only).
+    second-factor: ${APP_PLATFORM_SECOND_FACTOR:email}
   security:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
     # Origin patterns, e.g. https://*.selectcodepos.com (every shop subdomain)

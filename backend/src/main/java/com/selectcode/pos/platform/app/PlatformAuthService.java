@@ -3,14 +3,20 @@ package com.selectcode.pos.platform.app;
 import com.selectcode.pos.platform.PlatformPrincipal;
 import com.selectcode.pos.platform.domain.PlatformUser;
 import com.selectcode.pos.platform.infra.PlatformUserRepository;
+import com.selectcode.pos.shared.messaging.MessageSender;
+import com.selectcode.pos.shared.messaging.OutgoingMessage;
 import com.selectcode.pos.shared.security.Totp;
 import com.selectcode.pos.shared.web.ApiException;
 import com.selectcode.pos.shared.web.RateLimiter;
 import jakarta.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HexFormat;
+import java.util.Locale;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +26,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Super admin sign-in: email + password + TOTP code (mandatory, DECISIONS D-10). On the first sign-in the super admin
- * enrols an authenticator app: the password step returns a new secret, and the first valid code completes sign-in.
+ * Platform staff sign-in: email + password, then a one-time code emailed to the user (default). Authenticator (TOTP) remains
+ * available when {@code app.platform.second-factor=totp}.
  */
 @Service
 public class PlatformAuthService {
@@ -30,17 +36,30 @@ public class PlatformAuthService {
 
 	static final String PENDING_ENROLMENT = "pos.platform.pendingEnrolment";
 
+	static final String PENDING_EMAIL = "pos.platform.pendingEmail";
+
+	private static final Duration EMAIL_CODE_TTL = Duration.ofMinutes(10);
+
+	private static final SecureRandom RANDOM = new SecureRandom();
+
 	public sealed interface Outcome {
 
 		record SignedIn(PlatformPrincipal principal) implements Outcome {
 		}
 
-		/** Password was right but no authenticator is enrolled yet. */
+		/** Password was right but no authenticator is enrolled yet (TOTP mode only). */
 		record EnrolmentRequired(String secret, String otpauthUri) implements Outcome {
 		}
 	}
 
+	public enum SecondFactor {
+		OFF, EMAIL, TOTP
+	}
+
 	record PendingEnrolment(long platformUserId, String secret, Instant expiresAt) implements Serializable {
+	}
+
+	record PendingEmailLogin(long platformUserId, String codeSha256, Instant expiresAt) implements Serializable {
 	}
 
 	private final PlatformUserRepository users;
@@ -55,35 +74,49 @@ public class PlatformAuthService {
 
 	private final Clock clock;
 
+	private final MessageSender messages;
+
 	private final String dummyHash;
 
-	private final boolean totpRequired;
+	private final SecondFactor secondFactor;
 
 	PlatformAuthService(PlatformUserRepository users, PasswordEncoder passwordEncoder, RateLimiter rateLimiter,
-			JdbcTemplate jdbc, PlatformTransactionManager transactionManager, Clock clock,
-			@Value("${app.platform.totp-required:true}") boolean totpRequired) {
+			JdbcTemplate jdbc, PlatformTransactionManager transactionManager, Clock clock, MessageSender messages,
+			@Value("${app.platform.second-factor:email}") String secondFactorConfig) {
 		this.users = users;
 		this.passwordEncoder = passwordEncoder;
 		this.rateLimiter = rateLimiter;
 		this.jdbc = jdbc;
 		this.transaction = new TransactionTemplate(transactionManager);
 		this.clock = clock;
-		this.totpRequired = totpRequired;
+		this.messages = messages;
+		this.secondFactor = parseSecondFactor(secondFactorConfig);
 		this.dummyHash = passwordEncoder.encode("not-a-real-password");
 	}
 
-	public Outcome signIn(String email, String password, String totpCode, String ip, String userAgent,
-			HttpSession session) {
+	static SecondFactor parseSecondFactor(String value) {
+		if (value == null || value.isBlank()) {
+			return SecondFactor.EMAIL;
+		}
+		return switch (value.trim().toLowerCase(Locale.ROOT)) {
+			case "off", "none", "false" -> SecondFactor.OFF;
+			case "totp", "authenticator" -> SecondFactor.TOTP;
+			default -> SecondFactor.EMAIL;
+		};
+	}
+
+	public Outcome signIn(String email, String password, String totpCode, String emailCode, String ip,
+			String userAgent, HttpSession session) {
 		rateLimiter.check("platform-signin:" + ip, 10, Duration.ofMinutes(5));
-		// The transaction always commits (failed-attempt counter + login history); errors are thrown afterwards.
-		Object result = transaction.execute(tx -> attempt(email, password, totpCode, ip, userAgent, session));
+		Object result = transaction
+			.execute(tx -> attempt(email, password, totpCode, emailCode, ip, userAgent, session));
 		if (result instanceof ApiException error) {
 			throw error;
 		}
 		return (Outcome) result;
 	}
 
-	private Object attempt(String email, String password, String totpCode, String ip, String userAgent,
+	private Object attempt(String email, String password, String totpCode, String emailCode, String ip, String userAgent,
 			HttpSession session) {
 		Instant now = clock.instant();
 		PlatformUser user = users.findByEmailIgnoreCase(email.trim()).orElse(null);
@@ -101,11 +134,66 @@ public class PlatformAuthService {
 			record(user, email, "INVALID", ip, userAgent);
 			return invalid();
 		}
-		if (!totpRequired) {
+		return switch (secondFactor) {
+			case OFF -> {
+				user.recordSuccess(now);
+				record(user, email, "SUCCESS", ip, userAgent);
+				yield new Outcome.SignedIn(principal(user));
+			}
+			case EMAIL -> handleEmailCode(user, emailCode, session, now, ip, userAgent);
+			case TOTP -> handleTotp(user, totpCode, session, now, email, ip, userAgent);
+		};
+	}
+
+	private Object handleEmailCode(PlatformUser user, String emailCode, HttpSession session, Instant now, String ip,
+			String userAgent) {
+		if (emailCode != null && !emailCode.isBlank()) {
+			Object value = session.getAttribute(PENDING_EMAIL);
+			if (!(value instanceof PendingEmailLogin pending) || pending.platformUserId() != user.getId()
+					|| pending.expiresAt().isBefore(now)) {
+				return new ApiException(HttpStatus.UNAUTHORIZED, "email_code_expired",
+						"The code has expired. Sign in with your password again to get a new one.");
+			}
+			if (!codeMatches(pending.codeSha256(), emailCode.trim())) {
+				user.recordFailure(now);
+				record(user, user.getEmail(), "email_code_invalid", ip, userAgent);
+				return new ApiException(HttpStatus.UNAUTHORIZED, "email_code_invalid", "The sign-in code is not correct");
+			}
+			session.removeAttribute(PENDING_EMAIL);
 			user.recordSuccess(now);
-			record(user, email, "SUCCESS", ip, userAgent);
+			record(user, user.getEmail(), "SUCCESS", ip, userAgent);
 			return new Outcome.SignedIn(principal(user));
 		}
+
+		Object existing = session.getAttribute(PENDING_EMAIL);
+		if (existing instanceof PendingEmailLogin pending && pending.platformUserId() == user.getId()
+				&& pending.expiresAt().isAfter(now)) {
+			return new ApiException(HttpStatus.UNAUTHORIZED, "email_code_required",
+					"Enter the sign-in code we sent to your email.");
+		}
+
+		String digits = generateDigits(6);
+		session.setAttribute(PENDING_EMAIL,
+				new PendingEmailLogin(user.getId(), sha256(digits), now.plus(EMAIL_CODE_TTL)));
+		boolean sent = messages.send(OutgoingMessage.email(user.getEmail(),
+				com.selectcode.pos.shared.Brand.PLATFORM + " sign-in code", """
+						You asked to sign in to the %s.
+
+						Your sign-in code is: %s
+
+						It works for 10 minutes. If you did not try to sign in, ignore this email.
+						""".formatted(com.selectcode.pos.shared.Brand.company(), digits)));
+		if (!sent) {
+			session.removeAttribute(PENDING_EMAIL);
+			return new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "email_not_sent",
+					"We could not send a sign-in code to your email. Ask your administrator to configure email (SMTP or API).");
+		}
+		return new ApiException(HttpStatus.UNAUTHORIZED, "email_code_required",
+				"We sent a sign-in code to your email. Enter it below.");
+	}
+
+	private Object handleTotp(PlatformUser user, String totpCode, HttpSession session, Instant now, String email,
+			String ip, String userAgent) {
 		if (user.getTotpSecret() == null) {
 			String secret = Totp.newSecret();
 			session.setAttribute(PENDING_ENROLMENT,
@@ -125,7 +213,7 @@ public class PlatformAuthService {
 		return new Outcome.SignedIn(principal(user));
 	}
 
-	/** Completes first sign-in: the code proves the authenticator app was set up with the new secret. */
+	/** Completes first sign-in in TOTP mode: the code proves the authenticator app was set up with the new secret. */
 	public PlatformPrincipal completeEnrolment(String code, String ip, String userAgent, HttpSession session) {
 		rateLimiter.check("platform-enrol:" + ip, 10, Duration.ofMinutes(5));
 		Object value = session.getAttribute(PENDING_ENROLMENT);
@@ -148,8 +236,36 @@ public class PlatformAuthService {
 		});
 	}
 
+	private static String generateDigits(int length) {
+		StringBuilder sb = new StringBuilder(length);
+		for (int i = 0; i < length; i++) {
+			sb.append(RANDOM.nextInt(10));
+		}
+		return sb.toString();
+	}
+
+	private static String sha256(String plain) {
+		try {
+			byte[] digest = MessageDigest.getInstance("SHA-256").digest(plain.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			return HexFormat.of().formatHex(digest);
+		}
+		catch (java.security.NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private static boolean codeMatches(String expectedSha256, String typed) {
+		String normalized = typed.replaceAll("\\D", "");
+		if (normalized.length() != 6) {
+			return false;
+		}
+		return MessageDigest.isEqual(expectedSha256.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+				sha256(normalized).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+	}
+
 	private static PlatformPrincipal principal(PlatformUser user) {
-		return new PlatformPrincipal(user.getId(), user.getEmail(), user.getName(), user.getRole().name(), null, null, null, null);
+		return new PlatformPrincipal(user.getId(), user.getEmail(), user.getName(), user.getRole().name(), null, null, null,
+				null);
 	}
 
 	private void record(PlatformUser user, String email, String result, String ip, String userAgent) {

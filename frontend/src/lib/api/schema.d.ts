@@ -5755,6 +5755,7 @@ export interface components {
             email: string;
             password: string;
             totpCode?: string;
+            emailCode?: string;
         };
         PlatformLoginResponse: {
             enrolmentRequired: boolean;

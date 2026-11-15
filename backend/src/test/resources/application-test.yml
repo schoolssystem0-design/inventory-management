@@ -2,6 +2,8 @@ app:
   jobs:
     enabled: false
   root-domain: pos.test
+  platform:
+    second-factor: email
   files:
     local-dir: target/test-files
 logging:

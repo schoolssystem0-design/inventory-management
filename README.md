@@ -74,6 +74,18 @@ npm run lint && npm run typecheck && npm test   # lint, types, unit and componen
 npm run build && npm run e2e                    # browser tests (needs the backend running)
 ```
 
+## GitHub and production
+
+| Repo | Purpose | URL |
+|------|---------|-----|
+| [inventory-management](https://github.com/schoolssystem0-design/inventory-management) | Monorepo (source of truth for local work) | This folder |
+| [inventory-pos-frontend](https://github.com/schoolssystem0-design/inventory-pos-frontend) | Vercel deploy | [inventory-pos-frontend.vercel.app](https://inventory-pos-frontend.vercel.app) |
+| [inventory-pos-backend](https://github.com/schoolssystem0-design/inventory-pos-backend) | Railway deploy | API on Railway |
+
+**Pushes to deploy:** copy changed paths into the `-publish` clones (or mirror workflow you use), then commit on `main` with author **`schoolssystem0-design <schoolssystem0@gmail.com>`** so Vercel accepts commits on the private frontend repo (Hobby plan).
+
+**Local remotes:** monorepo → `inventory-management`; publish folders → `inventory-pos-frontend` / `inventory-pos-backend` (see [docs/planning/DEPLOYMENT-RUNBOOK.md](docs/planning/DEPLOYMENT-RUNBOOK.md) if present).
+
 ## Status
 
 Stages 1–4, 4b (all modules of the 10 shop types) and 4c (fast food) are built and tested; a QA and security pass is done. Next is
