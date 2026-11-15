@@ -4,6 +4,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,7 +31,10 @@ class MessagingConfig {
 	@Primary
 	MessageSender messageSender(Environment environment, ObjectProvider<DevOutbox> devOutbox,
 			ObjectProvider<JavaMailSender> mailSender, JsonMapper json) {
-		if (environment.acceptsProfiles(Profiles.of("local", "test"))) {
+		// On Railway, "local" must still deliver real email — only pure local dev uses the in-memory outbox.
+		boolean onRailway = StringUtils.hasText(environment.getProperty("RAILWAY_ENVIRONMENT"));
+		if (environment.acceptsProfiles(Profiles.of("test"))
+				|| (environment.acceptsProfiles(Profiles.of("local")) && !onRailway)) {
 			return devOutbox.getObject();
 		}
 		String from = environment.getProperty("app.mail.from", "");
@@ -86,7 +90,9 @@ class MessagingConfig {
 		return new DevOutbox();
 	}
 
+	/** Not on Railway: outbox is only for laptop dev (codes appear at /api/v1/dev/outbox). */
 	@Profile("local")
+	@ConditionalOnProperty(name = "RAILWAY_ENVIRONMENT", havingValue = "false", matchIfMissing = true)
 	@RestController
 	static class DevOutboxController {
 

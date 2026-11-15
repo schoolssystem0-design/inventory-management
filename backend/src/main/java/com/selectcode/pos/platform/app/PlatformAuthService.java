@@ -177,7 +177,7 @@ public class PlatformAuthService {
 				new PendingEmailLogin(user.getId(), sha256(digits), now.plus(EMAIL_CODE_TTL)));
 		boolean sent = messages.send(OutgoingMessage.email(user.getEmail(),
 				com.selectcode.pos.shared.Brand.PLATFORM + " sign-in code", """
-						You asked to sign in to the %s.
+						You asked to sign in to %s Platform.
 
 						Your sign-in code is: %s
 
